@@ -1,0 +1,3 @@
+[submodule "Libraries/Lua"]
+	path = Libraries/Lua
+	url = https://github.com/walterschell/Lua

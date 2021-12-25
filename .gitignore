@@ -1,0 +1,5 @@
+CMakeSettings.json
+.vs
+.vscode
+build/
+Libraries/libui/aarchitect.exe
