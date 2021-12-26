@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.19)
 project(aarchitectUI)
 
-add_subdirectory(Libraries/Lua)
-add_subdirectory(scripthost)
+# add_subdirectory(Libraries/Lua)
+# add_subdirectory(scripthost)
 
 set(libUI_DIR Libraries/libui)
 set(SEARCH_LIBUI_DYNAMIC YES)
