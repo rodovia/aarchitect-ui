@@ -11,6 +11,25 @@ uiMenu* editMenuBar;
 // mbi - menu bar item
 uiMenuItem* mbiSettings;
 
+void aarMessageBox(const wchar_t *message, const wchar_t* caption, int flags) {
+#ifdef _WIN32
+    int wFlags = 0;
+    switch(flags) {
+    case aarMessageBoxSeverity_Error:
+        wFlags = MB_ICONEXCLAMATION | MB_OK;
+        break;
+    case aarMessageBoxSeverity_Warning:
+        wFlags = MB_ICONWARNING | MB_OK;
+        break;
+    case aarMessageBoxSeverity_Ok:
+        wFlags = MB_ICONASTERISK| MB_OK;
+    }
+    MessageBoxW(NULL, message, caption, wFlags);
+#else
+    printf("%s: %s", caption, message);
+#endif
+}
+
 static void SetupMenuBar() {
     editMenuBar = uiNewMenu("Editar");
     mbiSettings = uiMenuAppendItem(editMenuBar, "Definições");
@@ -65,7 +84,7 @@ int main() {
         uiFreeInitError(err);
         return 1;
     }
-
+    
     SetupMenuBar();
     uiOnShouldQuit(ShouldQuit, NULL);
 
