@@ -1,4 +1,4 @@
-#include <aarchitect.h>
+﻿#include <aarchitect.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -10,6 +10,8 @@ uiWindow* mainWindow;
 uiMenu* editMenuBar;
 // mbi - menu bar item
 uiMenuItem* mbiSettings;
+
+void aarSettingsWindowLauncher(uiMenuItem* sender, uiWindow* senderWindow, void* data);
 
 void aarMessageBox(const wchar_t *message, const wchar_t* caption, int flags) {
 #ifdef _WIN32
@@ -79,7 +81,9 @@ int main() {
 #ifndef _WIN32
         fprintf(stderr, "uiInit: %s", err);
 #else
-        MessageBoxA(NULL, err, "aarchitect startup failure", MB_OK | MB_ICONEXCLAMATION);
+        const wchar_t* werr = aarMultiByteTWideChar(err);
+        aarMessageBox(werr, L"Erro no arranque do aarchitect", aarMessageBoxSeverity_Error);
+        free(werr);
 #endif
         uiFreeInitError(err);
         return 1;

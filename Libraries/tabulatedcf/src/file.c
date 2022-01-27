@@ -1,10 +1,9 @@
-#include <tabulatedcf/file.h>
-#include <tabulatedcf/error.h>
+#include <tabulatedcf.h>
 #include <stdio.h>
 
 CFAPI(long) cfFileSize(FILE* fpHandle) {
     long ofSize, retSize;
-    if (handle == NULL) {
+    if (fpHandle == NULL) {
         cfSetLastError(cfError_NULL_POINTER);
         return -1;
     }

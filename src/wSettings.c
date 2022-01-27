@@ -3,38 +3,25 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#ifdef __WINDOWS__
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
-typedef struct {
-    uiEntry* serverHost;
-    uiEntry* serverPort;
-} ConfigurationEntries;
+uiEntry* serverHost;
+uiEntry* serverPort;
 
 int SettingsShouldClose(uiWindow* window, void *data) {
     uiControlDestroy(uiControl(window));
     return 0;
 }
 
-void SaveButtonClicked(uiButton* button, void* confev) {
-    ConfigurationEntries confe = *(ConfigurationEntries*)confev;
-    aarPrettyLog("entries->serverPort = %p", confe.serverPort);
-    char* serhost = uiEntryText(confe.serverHost);
-    char* serport;
-
-    // Crash handling
-#ifdef __WINDOWS__
-    __try {
-        serport = uiEntryText(confe.serverPort);
-    } __except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ?
-        EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) {
-        serport = "9192";
-    }
-#else
-    serport = uiEntryText(confe.serverPort);
-#endif
+void SaveButtonClicked(uiButton* button, void* data) {
+    char* serhost = uiEntryText(serverHost);
+    char* serport = uiEntryText(serverPort);
     
+    uiEntrySetReadOnly(serverHost, 1);
+    uiEntrySetReadOnly(serverPort, 1);
+
     int port;
     int dig = 1;
     for (int i = 0; i <= strlen(serport) - 1; i++) {
@@ -60,6 +47,10 @@ void SaveButtonClicked(uiButton* button, void* confev) {
     aarWriteSettings(confu);
 
     free(confu);
+    uiEntrySetReadOnly(serverHost, 0);
+    uiEntrySetReadOnly(serverPort, 0);
+
+    aarMessageBox(L"Definições guardadas com êxito", L"Definições", aarMessageBoxSeverity_Ok);
 }
 
 void aarSettingsWindowLauncher(uiMenuItem* sender, uiWindow* senderWindow, void* data) {
@@ -67,7 +58,8 @@ void aarSettingsWindowLauncher(uiMenuItem* sender, uiWindow* senderWindow, void*
     uiWindowOnClosing(window, SettingsShouldClose, NULL);
     int status = aarMakeSettingsWindow(window);
     if (status == 0) {
-        return uiControlShow(uiControl(window));
+        uiControlShow(uiControl(window));
+        return;
     }
 
     uiControlDestroy(uiControl(window));
@@ -84,32 +76,27 @@ int aarMakeSettingsWindow(uiWindow* window) {
     aarUserConfiguration* conf = malloc(sizeof(aarUserConfiguration));
     status = aarGetSettings(conf);
     if (status == aarError_FERROR) {
-        aarMessageBox(L"O ficheiro de definicoes nao existe ou e inválido le-lo.", L"Definições", aarMessageBoxSeverity_Warning);
+        aarMessageBox(L"O ficheiro de definições não existe ou não é válido.", L"Erro", aarMessageBoxSeverity_Warning);
         return aarRequest_DESTROY_WINDOW;
     }
 
     aarPrettyLog("Current host: %s", conf->server.host);
-    aarPrettyLog("Current port: %lf", conf->server.port);
-    uiEntry* serverHostEntry = uiNewEntry();
-    uiEntry* portHostEntry = uiNewEntry();
-    ConfigurationEntries *entries = calloc(1, sizeof(ConfigurationEntries));
-    
-    entries->serverHost = serverHostEntry;
-    entries->serverPort = portHostEntry;
-    aarPrettyLog("entries->serverPort = %p", entries->serverPort);
+    aarPrettyLog("Current port: %zd", conf->server.port);
+    serverHost = uiNewEntry();
+    serverPort = uiNewEntry();
 
     saveButton = uiNewButton("Guardar");
-    uiButtonOnClicked(saveButton, SaveButtonClicked, (void *) &entries);
+    uiButtonOnClicked(saveButton, SaveButtonClicked, NULL);
 
     if (strlen(conf->server.host) > 0)
-        uiEntrySetText(serverHostEntry, conf->server.host);
-    uiEntrySetText(portHostEntry, "0");
+        uiEntrySetText(serverHost, conf->server.host);
+    uiEntrySetText(serverPort, "0");
 
     form = uiNewForm();
     uiFormSetPadded(form, 1);
     
-    uiFormAppend(form, "Servidor de destino", uiControl(serverHostEntry), 1);
-    uiFormAppend(form, "Porta do servidor de destino", uiControl(portHostEntry), 0);
+    uiFormAppend(form, "Servidor de destino", uiControl(serverHost), 1);
+    uiFormAppend(form, "Porta do servidor de destino", uiControl(serverPort), 0);
     
     vbox = uiNewVerticalBox();
     uiBoxAppend(vbox, uiControl(form), 0);

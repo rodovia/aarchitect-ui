@@ -1,6 +1,6 @@
-#include <tabulatedcf/error.h>
-#include <tabulatedcf/basic.h>
+#include <tabulatedcf.h>
 #include <stdlib.h>
+#include <vcruntime.h>
 
 #ifdef _WIN32
 _THREAD_LOCAL int __StatusCode = 0;
