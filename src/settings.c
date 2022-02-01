@@ -9,26 +9,26 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <jansson.h>
 
-static int aarParseSettings(aarUserConfiguration* out, const cJSON* document);
+#define yaml_document_t void
 
-int aarGetSettings(aarUserConfiguration* configuration) {
+static int ParseSettings(aarUserConfiguration* out, const yaml_document_t* document);
+static int LoadYAMLFile(FILE* handle, yaml_document_t* document);
+
+int AAR_CALLCONV aarGetSettings(aarUserConfiguration* configuration) {
    return aarGetSettingsEx(AARCHITECT_SETTINGS_FILE, configuration);
 }
 
-int aarGetSettingsEx(const char* filename, aarUserConfiguration* configuration) {
-    aarPrettyLog("Loading configuration file %s...", filename);
-
-}
-
-static int aarParseSettings(aarUserConfiguration* out, const cJSON* document) {
-   
+int AAR_CALLCONV aarGetSettingsEx(const char* filename, aarUserConfiguration* configuration) {
 
     return aarError_SUCCES;
 }
 
-char* aarReadFile(FILE* handle) {
+static int ParseSettings(aarUserConfiguration* out, const yaml_document_t* document) {
+    return 0;
+}
+
+char* AAR_CALLCONV aarReadFile(FILE* handle) {
     int size;
     char* content;
 
@@ -65,15 +65,15 @@ int AAR_CALLCONV aarWriteFile(FILE* handle, const char* content) {
     return aarError_SUCCES;
 }
 
-int aarLoadJSONFile(FILE* handle, cJSON* document) {
+static int LoadYAMLFile(FILE* handle, yaml_document_t* document) {
 
 }
 
-int aarWriteSettings(aarUserConfiguration* inUserConf) {
+int AAR_CALLCONV aarWriteSettings(aarUserConfiguration* inUserConf) {
     return aarWriteSettingsEx(AARCHITECT_SETTINGS_FILE, inUserConf);
 }
 
-int aarWriteSettingsEx(const char* filename, aarUserConfiguration* inUserConf) {
+int AAR_CALLCONV aarWriteSettingsEx(const char* filename, aarUserConfiguration* inUserConf) {
     
 }
 

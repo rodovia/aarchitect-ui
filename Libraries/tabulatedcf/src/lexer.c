@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <wctype.h>
+#include <wchar.h>
 
-_CFLEXER* cfLexerCreate(char const* lpcContent) {
+CFAPI(_CFLEXER*) cfLexerCreate(const wchar_t* lpcContent) {
     _CFLEXER* lpLexer = calloc(1, sizeof(_CFLEXER));
     lpLexer->rawContent = lpcContent;
     lpLexer->currentIndex = 0;
@@ -12,7 +14,7 @@ _CFLEXER* cfLexerCreate(char const* lpcContent) {
     return lpLexer;
 }
 
-_CFTOKEN* cfTokenCreate(int iType, char* cInner) {
+CFAPI(_CFTOKEN*) cfTokenCreate(int iType, wchar_t* cInner) {
     _CFTOKEN* token = calloc(1, sizeof(_CFTOKEN));
     token->type = iType;
     token->inner = cInner;
@@ -21,7 +23,7 @@ _CFTOKEN* cfTokenCreate(int iType, char* cInner) {
 }
 
 size_t cfLexerAdvance(_CFLEXER* lpLexer) {
-    if (lpLexer->currentChar != '\0' && lpLexer->currentIndex < strlen(lpLexer->rawContent)) {
+    if (lpLexer->currentChar != L'\0' && lpLexer->currentIndex < strlen(lpLexer->rawContent)) {
         lpLexer->currentIndex++;
         lpLexer->currentChar = lpLexer->rawContent[lpLexer->currentIndex];
     }
@@ -30,43 +32,49 @@ size_t cfLexerAdvance(_CFLEXER* lpLexer) {
 }
 
 void cfLexerSkipWhitespace(_CFLEXER* lpLexer) {
-    while (lpLexer->currentChar == ' ' || lpLexer->currentChar == '\n') {
+    while (lpLexer->currentChar == L' ' || lpLexer->currentChar == L'\n') {
         cfLexerAdvance(lpLexer);
     }
 }
 
-_CFTOKEN* cfLexerGetNextToken(_CFLEXER* lpLexer) {
+CFAPI(_CFTOKEN*) cfLexerGetNextToken(_CFLEXER* lpLexer) {
     while (lpLexer->currentChar != '\0' && lpLexer->currentIndex < strlen(lpLexer->rawContent)) {
-        if (lpLexer->currentChar == ' ' || lpLexer->currentChar == '\n') {
+        if (lpLexer->currentChar == L' ' || lpLexer->currentChar == L'\n') {
             cfLexerSkipWhitespace(lpLexer);
         }
 
-        if (lpLexer ->currentChar) {
+        if (iswalnum(lpLexer->currentChar)) {
+            return cfLexerParseIdentifier(lpLexer);
+        }
+
+        if (lpLexer->currentChar == L'"') {
             return cfLexerParseString(lpLexer);
         }
 
         switch(lpLexer->currentChar) {
-        case '=':
-            if (cfLexerSeek(lpLexer) == '>') {
+        case L'=':
+            if (cfLexerSeek(lpLexer) == L'>') {
                 return cfLexerAdvanceWToken(lpLexer, cfTokenCreate(TOKEN_ASSIGN, ">"));
             }
             break;
-        case '{':
+        case L'{':
             return cfLexerAdvanceWToken(lpLexer, cfTokenCreate(TOKEN_LEFTCBRACE, "{"));
-        case '}':
+        case L'}':
             return cfLexerAdvanceWToken(lpLexer, cfTokenCreate(TOKEN_RIGHTCBRACE, "}"));
-        case '>':
+        case L'>':
             cfLexerAdvance(lpLexer);
             break;
         }
     }
+
+    return NULL;
 }
 
-char cfLexerSeek(_CFLEXER* lpLexer) {
+wchar_t cfLexerSeek(_CFLEXER* lpLexer) {
     return cfLexerSeek1(lpLexer, 1, cfSEEK_ZERO);
 }
 
-char cfLexerSeek1(_CFLEXER* lpLexer, int offset, int type) {
+wchar_t cfLexerSeek1(_CFLEXER* lpLexer, int offset, int type) {
     size_t position;
 
     switch(type) {
@@ -91,43 +99,40 @@ _CFTOKEN* cfLexerAdvanceWToken(_CFLEXER* lpLexer, _CFTOKEN* lpToken) {
 }
 
 _CFTOKEN* cfLexerParseIdentifier(_CFLEXER* lpLexer) {
-    /* Skip quotes */
     cfLexerAdvance(lpLexer);
-    char* value = calloc(1, sizeof(char));
+    wchar_t* value = calloc(1, sizeof(wchar_t));
     value[0] = '\0';
 
     while (isalnum(lpLexer->currentChar)) {
         char* t = cfLexerCurrentCharAString(lpLexer);
-        value = realloc(value, (strlen(value) + strlen(t) + 1) * sizeof(char));
-        strcat(value, t);
+        value = realloc(value, (wcslen(value) + wcslen(t) + 1) * sizeof(wchar_t));
+        wcscat(value, t);
         cfLexerAdvance(lpLexer);
     }
 
-    cfLexerAdvance(lpLexer);
-    return cfTokenCreate(TOKEN_STRING, value);
+    return cfTokenCreate(TOKEN_IDENTIFIER, value);
 }
 
 _CFTOKEN* cfLexerParseString(_CFLEXER* lpLexer) {
     /* Skip quotes */
     cfLexerAdvance(lpLexer);
-    char* value = calloc(1, sizeof(char));
+    wchar_t* value = calloc(1, sizeof(wchar_t));
     value[0] = '\0';
 
     while (lpLexer->currentChar != '"') {
         char* t = cfLexerCurrentCharAString(lpLexer);
-        value = realloc(value, (strlen(value) + strlen(t) + 1) * sizeof(char));
-        strcat(value, t);
+        value = realloc(value, (wcslen(value) + wcslen(t) + 1) * sizeof(wchar_t));
+        wcscat(value, t);
         cfLexerAdvance(lpLexer);
     }
 
-    cfLexerAdvance(lpLexer);
-    return cfTokenCreate(TOKEN_IDENTIFIER, value);
+    return cfTokenCreate(TOKEN_STRING, value);
 }
 
-char* cfLexerCurrentCharAString(_CFLEXER* lpLexer) {
-    char* str = calloc(2, sizeof(char));
+wchar_t* cfLexerCurrentCharAString(_CFLEXER* lpLexer) {
+    wchar_t* str = calloc(2, sizeof(wchar_t));
     str[0] = lpLexer->currentChar;
-    str[1] = '\0';
+    str[1] = L'\0';
 
     return str;
 }

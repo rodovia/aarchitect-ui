@@ -16,7 +16,7 @@ CFAPI(long) cfFileSize(FILE* fpHandle) {
     return retSize;
 }
 
-CFAPI(int) cfReadFile(const char* fName, FILE* fpHandle, char* lpstrContent) {
+CFAPI(int) cfReadFile(const char* fName, FILE* fpHandle, wchar_t* lpstrContent) {
     long fSize;
     int elemCount;
 
@@ -28,7 +28,7 @@ CFAPI(int) cfReadFile(const char* fName, FILE* fpHandle, char* lpstrContent) {
     fSize = cfFileSize(fpHandle);
     if (fSize < 0)
         return -1;
-    elemCount = fread(lpstrContent, sizeof(char), fSize, fpHandle);
+    elemCount = fread(lpstrContent, sizeof(wchar_t), fSize, fpHandle);
     return elemCount;
 }
 
@@ -42,3 +42,5 @@ CFAPI(int) cfWriteToFile(FILE* fpHandle, const char* content, size_t size) {
     elemCount = fwrite(content, sizeof(char), size, fpHandle);
     return elemCount;
 }
+
+

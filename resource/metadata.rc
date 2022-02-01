@@ -1,0 +1,32 @@
+#include "../include/aarchitect_cof.h"
+#include <windows.h>
+
+#ifdef BUILDING_DLL
+#   define APPTYPE VTF_DLL
+#elif BUILDING_EXE
+#   define APPTYPE VTF_APP
+#else
+#   define APPTYPE VTF_UNKNOWN
+#endif
+
+1   VERSIONINFO
+    FILEVERSION     "0.1.0\0"
+    FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+    FILEFLAGS (VS_FF_SPECIALBUILD|VS_FF_PRERELEASE)
+    FILEOS VOS__WINDOWS32
+    FILETYPE APPTYPE
+    FILESUBTYPE VFT2_UNKNOWN
+    BEGIN
+        BLOCK "StringFileInfo"
+        BEGIN
+            BLOCK "040904E4"
+            BEGIN
+                VALUE "CompanyName",      "Rodoviajw"
+                VALUE "FileDescription",  "aarchitect"
+                VALUE "FileVersion",      AARCHITECT_FILEVERSION
+                VALUE "LegalCopyright",   "n∆o tem"
+                VALUE "ProductName",      "aarchitect"
+                VALUE "ProductVersion",   AARCHITECT_PRODUCTVERSION
+            END
+        END
+    END

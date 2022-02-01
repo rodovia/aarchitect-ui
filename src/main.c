@@ -13,7 +13,7 @@ uiMenuItem* mbiSettings;
 
 void aarSettingsWindowLauncher(uiMenuItem* sender, uiWindow* senderWindow, void* data);
 
-void aarMessageBox(const wchar_t *message, const wchar_t* caption, int flags) {
+void AAR_CALLCONV aarMessageBox(const wchar_t* message, const wchar_t* caption, int flags) {
 #ifdef _WIN32
     int wFlags = 0;
     switch(flags) {

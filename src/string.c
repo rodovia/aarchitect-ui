@@ -7,7 +7,7 @@
 #   include <windows.h>
 #endif
 
-char* aarFormatString(const char* fmt, ...) {
+char* AAR_CALLCONV aarFormatString(const char* fmt, ...) {
     char* snOut = malloc(strlen(fmt) + 1024);
     if (snOut == NULL) {
         return "";
@@ -21,7 +21,7 @@ char* aarFormatString(const char* fmt, ...) {
 }
 
 #ifdef _WIN32
-const wchar_t* aarMultiByteTWideChar(const char* inContents) {
+const wchar_t* AAR_CALLCONV aarMultiByteTWideChar(const char* inContents) {
     size_t len = sizeof(inContents) + 1;
     int wlen = MultiByteToWideChar(CP_ACP, 0, inContents, len, 0, 0);
     wchar_t* wstring = (wchar_t*) malloc(sizeof(wchar_t) * len);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <wtypes.h>
 #include <wchar.h>
 #include <ui.h>
 #include <stdio.h>
@@ -19,7 +20,7 @@
 struct _USERCFG {
     struct {
         const char* host;
-        size_t port;
+        int32_t port;
     } server;
     const char* username;
 };
@@ -42,7 +43,7 @@ enum {
 };
 
 
-void AAR_CALLCONV aarMessageBox(const wchar_t * message, const wchar_t* caption, int flags);
+void AAR_CALLCONV aarMessageBox(const wchar_t* message, const wchar_t* caption, int flags);
 int AAR_CALLCONV aarGetSettingsEx(const char* filename, aarUserConfiguration* configuration);
 int AAR_CALLCONV aarGetSettings(aarUserConfiguration* configuration);
 
@@ -55,7 +56,7 @@ char* AAR_CALLCONV aarFormatString(const char* fmt, ...);
 const wchar_t* AAR_CALLCONV aarMultiByteTWideChar(const char* inContents);
 
 #define aarPrettyLog(msg, ...) do {                                 \
-    char* __APL_FORMAT_STRING__ = aarFormatString(msg, __VA_ARGS__); \
+    char* __APL_FORMAT_STRING__ = aarFormatString(msg __VA_OPT__(,) __VA_ARGS__); \
     fprintf(stderr, "%s: %s\n", __func__, __APL_FORMAT_STRING__);       \
     free(__APL_FORMAT_STRING__);                                       \
 } while(0)

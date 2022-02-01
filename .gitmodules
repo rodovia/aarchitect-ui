@@ -1,3 +1,3 @@
-[submodule "libraries/thirdparty/xml"]
-	path = libraries/thirdparty/xml
-	url = https://github.com/recp/xml.git
+[submodule "libraries/thirdparty/libyaml"]
+	path = libraries/thirdparty/libyaml
+	url = https://github.com/yaml/libyaml/

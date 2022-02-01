@@ -5,19 +5,36 @@ set(CMAKE_C_STANDARD 11)
 
 set(BUILD_SHARED_LIBS ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebugDLL")
-set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_LIST_DIR}/SimpleInstall")
-set(CMAKE_INSTALL_INCLUDEDIR "${CMAKE_CURRENT_LIST_DIR}/SimpleInstall/include")
 
 # ==> DEPENDÊNCIAS <===
 set(libUI_DIR libraries/thirdparty/libui)
-set(SEARCH_LIBUI_DYNAMIC YES)
+set(SEARCH_LIBUI_DYNAMIC ON)
 find_package(libUI)
-add_subdirectory(libraries/thirdparty/jansson)
 add_subdirectory(libraries/tabulatedcf)
 
-set(aarchitect_SOURCES src/main.c src/wSettings.c src/settings.c src/string.c)
-set(aarchitect_LIBS libui tabcf jasson)
+set(aarchitect_SOURCES
+    src/main.c 
+    src/wSettings.c 
+    src/settings.c 
+    src/string.c
+    src/blank.cc
+    resource/icon.rc 
+#   resource/metadata.rc
+)
+set(aarchitect_LIBS 
+    libui
+    tabcf
+)
 
+if (WIN32 AND NOT SEARCH_LIBUI_DYNAMIC)
+    list(APPEND aarchitect_LIBS
+        d2d1
+        dwrite
+        comctl32
+        uxtheme)
+endif()
+
+# == ALVOS DE COMPILAÇÃO ==
 add_executable(aarchitect ${aarchitect_SOURCES})
 target_link_directories(aarchitect PUBLIC ${LIBUI_PATH})
 target_compile_definitions(aarchitect PUBLIC ${LIBUI_DEFINES})
@@ -27,7 +44,6 @@ if (MSVC)
 endif()
 
 target_link_libraries(aarchitect PRIVATE ${aarchitect_LIBS})
-target_include_directories(aarchitect PUBLIC ${LIBUI_PATH} include libraries/thirdparty/jansson/src)
+target_include_directories(aarchitect PUBLIC ${LIBUI_PATH} include libraries/thirdparty/yaml/include)
 
-install(TARGETS aarchitect RUNTIME DESTINATION ".")
-install(FILES libraries/thirdparty/libui/libui.dll DESTINATION "bin")
+add_subdirectory(libraries/tabulatedcf/test)

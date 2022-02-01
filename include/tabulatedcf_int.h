@@ -1,17 +1,20 @@
 #pragma once
 
+#include <tabulatedcf.h>
+#include <stdint.h>
+
 #define cfSEEK_START  1
 #define cfSEEK_END   2
 #define cfSEEK_ZERO 3
 
 typedef struct cfLexer {
-    const char* rawContent;
+    const wchar_t* rawContent;
     size_t currentIndex;
-    char currentChar;
+    wchar_t currentChar;
 } _CFLEXER;
 
 typedef struct cfToken {
-    char* inner;
+    wchar_t* inner;
     enum {
         TOKEN_ASSIGN,
         TOKEN_RIGHTCBRACE,
@@ -23,15 +26,15 @@ typedef struct cfToken {
     } type;
 } _CFTOKEN;
 
-_CFTOKEN* cfTokenCreate(int iType, char* cInner);
+CFAPI(_CFTOKEN*) cfTokenCreate(int iType, wchar_t* cInner);
 
-_CFLEXER* cfLexerCreate(const char* lpcContent);
-_CFTOKEN* cfLexerGetNextToken(_CFLEXER* lpLexer);
+CFAPI(_CFLEXER*) cfLexerCreate(const wchar_t* lpcContent);
+CFAPI(_CFTOKEN*) cfLexerGetNextToken(_CFLEXER* lpLexer);
 _CFTOKEN* cfLexerParseString(_CFLEXER* lpLexer);
 _CFTOKEN* cfLexerParseIdentifier(_CFLEXER* lpLexer);
 _CFTOKEN* cfLexerAdvanceWToken(_CFLEXER* lpLexer, _CFTOKEN* lpToken);
 
-char cfLexerSeek(_CFLEXER*);
-char cfLexerSeek1(_CFLEXER* lpLexer, int offset, int type);
+wchar_t cfLexerSeek(_CFLEXER*);
+wchar_t cfLexerSeek1(_CFLEXER* lpLexer, int offset, int type);
 void cfLexerSkipWhitespace(_CFLEXER* lpLexer);
-char* cfLexerCurrentCharAString(_CFLEXER* lpLexer);
+wchar_t* cfLexerCurrentCharAString(_CFLEXER* lpLexer);
