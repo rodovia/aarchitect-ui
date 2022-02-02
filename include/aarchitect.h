@@ -4,6 +4,7 @@
 #include <wchar.h>
 #include <ui.h>
 #include <stdio.h>
+#include <libstring.h>
 
 #define AARCHITECT_SETTINGS_FILE "cfg.tbc"
 
@@ -52,11 +53,10 @@ int AAR_CALLCONV aarWriteFile(FILE* handle, const char* content);
 
 int AAR_CALLCONV aarWriteSettings(aarUserConfiguration* inUserConf);
 int AAR_CALLCONV aarWriteSettingsEx(const char* filename, aarUserConfiguration* inUserConf);
-char* AAR_CALLCONV aarFormatString(const char* fmt, ...);
-const wchar_t* AAR_CALLCONV aarMultiByteTWideChar(const char* inContents);
 
 #define aarPrettyLog(msg, ...) do {                                 \
-    char* __APL_FORMAT_STRING__ = aarFormatString(msg __VA_OPT__(,) __VA_ARGS__); \
+    char* __APL_FORMAT_STRING__ = malloc(sizeof(char) * sizeof(msg) + 1024); \
+    FormatString(__APL_FORMAT_STRING__, msg __VA_OPT__(,) __VA_ARGS__); \
     fprintf(stderr, "%s: %s\n", __func__, __APL_FORMAT_STRING__);       \
     free(__APL_FORMAT_STRING__);                                       \
 } while(0)

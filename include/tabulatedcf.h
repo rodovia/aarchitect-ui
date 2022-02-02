@@ -40,6 +40,10 @@ enum {
     cfError_NULL_POINTER
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 CFAPI(long) cfFileSize(FILE* fpHandle);
 CFAPI(int) cfReadFile(const char* fName, FILE* fpHandle, wchar_t* lpstrContent);
 CFAPI(int) cfWriteToFile(FILE* fpHandle, const char* content, size_t size);
@@ -48,3 +52,7 @@ CFAPI(int) cfGetLastError();
 
 CFAPI(void) cfStart();
 CFAPI(void) cfEnd();
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

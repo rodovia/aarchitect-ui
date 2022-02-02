@@ -23,7 +23,7 @@ CFAPI(_CFTOKEN*) cfTokenCreate(int iType, wchar_t* cInner) {
 }
 
 size_t cfLexerAdvance(_CFLEXER* lpLexer) {
-    if (lpLexer->currentChar != L'\0' && lpLexer->currentIndex < strlen(lpLexer->rawContent)) {
+    if (lpLexer->currentChar != L'\0' && lpLexer->currentIndex < wcslen(lpLexer->rawContent)) {
         lpLexer->currentIndex++;
         lpLexer->currentChar = lpLexer->rawContent[lpLexer->currentIndex];
     }
@@ -38,7 +38,7 @@ void cfLexerSkipWhitespace(_CFLEXER* lpLexer) {
 }
 
 CFAPI(_CFTOKEN*) cfLexerGetNextToken(_CFLEXER* lpLexer) {
-    while (lpLexer->currentChar != '\0' && lpLexer->currentIndex < strlen(lpLexer->rawContent)) {
+    while (lpLexer->currentChar != '\0' && lpLexer->currentIndex < wcslen(lpLexer->rawContent)) {
         if (lpLexer->currentChar == L' ' || lpLexer->currentChar == L'\n') {
             cfLexerSkipWhitespace(lpLexer);
         }

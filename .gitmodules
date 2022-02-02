@@ -1,3 +1,6 @@
 [submodule "libraries/thirdparty/libyaml"]
 	path = libraries/thirdparty/libyaml
 	url = https://github.com/yaml/libyaml/
+[submodule "libraries/thirdparty/libwebsockets"]
+	path = libraries/thirdparty/libwebsockets
+	url = https://libwebsockets.org/repo/libwebsockets

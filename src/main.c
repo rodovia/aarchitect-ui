@@ -36,6 +36,7 @@ static void SetupMenuBar() {
     editMenuBar = uiNewMenu("Editar");
     mbiSettings = uiMenuAppendItem(editMenuBar, "Definições");
     uiMenuItemOnClicked(mbiSettings, aarSettingsWindowLauncher, NULL);
+    uiMenuItemDisable(mbiSettings);
 }
 
 static uiControl* MakeLoginPage() {
@@ -50,8 +51,8 @@ static uiControl* MakeLoginPage() {
 
     uiFormAppend(entryForm, "Nome de utilizador", 
         uiControl(uiNewEntry()), 0);
-    uiFormAppend(entryForm, "Palavra-passe", 
-        uiControl(uiNewSearchEntry()), 0);
+    uiFormAppend(entryForm, "Servidor de host",
+        uiControl(uiNewEntry()), 0);
     
     button = uiNewButton("Iniciar Sessão");
     uiBoxAppend(vbox, uiControl(button), 0);
@@ -81,7 +82,7 @@ int main() {
 #ifndef _WIN32
         fprintf(stderr, "uiInit: %s", err);
 #else
-        const wchar_t* werr = aarMultiByteTWideChar(err);
+        const wchar_t* werr = EnwidenString(err);
         aarMessageBox(werr, L"Erro no arranque do aarchitect", aarMessageBoxSeverity_Error);
         free(werr);
 #endif
