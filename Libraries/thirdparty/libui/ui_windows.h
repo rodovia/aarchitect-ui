@@ -186,6 +186,10 @@ _UI_EXTERN void uiWindowsControlChildVisibilityChanged(uiWindowsControl *);
 	uiWindowsControl(var)->ChildVisibilityChanged = type ## ChildVisibilityChanged; \
 	uiWindowsControl(var)->visible = 1; \
 	uiWindowsControl(var)->enabled = 1;
+
+_UI_EXTERN void uiWindowsSetIcon(uiWindow* window, HICON hres);
+// _UI_EXTERN void uiWindowSetBigIcon(HWND hwnd, HANDLE hres);
+
 // TODO document
 _UI_EXTERN uiWindowsControl *uiWindowsAllocControl(size_t n, uint32_t typesig, const char *typenamestr);
 

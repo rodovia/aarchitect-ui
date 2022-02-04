@@ -4,6 +4,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <ui_windows.h>
 #endif
 
 uiWindow* mainWindow;
@@ -89,13 +90,20 @@ int main() {
         uiFreeInitError(err);
         return 1;
     }
-    
+
     SetupMenuBar();
     uiOnShouldQuit(ShouldQuit, NULL);
 
     mainWindow = uiNewWindow("aarchitect", 640, 480, 1);
     uiWindowSetMargined(mainWindow, 1);
     uiWindowOnClosing(mainWindow, ShouldClose, NULL);
+
+#   ifdef _WIN32
+    HINSTANCE lpModule;
+    GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_PIN, NULL, &lpModule);
+    HICON hIcon = LoadIcon(lpModule, "IDI_ICON1");
+    uiWindowsSetIcon(mainWindow, hIcon);
+#   endif
 
     hbox = uiNewHorizontalBox();
     uiBoxSetPadded(hbox, 1);
