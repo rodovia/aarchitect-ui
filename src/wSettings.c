@@ -10,6 +10,8 @@
 uiEntry* serverHost;
 uiEntry* serverPort;
 
+int aarMakeSettingsWindow(uiWindow* window);
+
 int SettingsShouldClose(uiWindow* window, void *data) {
     uiControlDestroy(uiControl(window));
     return 0;
@@ -43,7 +45,7 @@ void SaveButtonClicked(uiButton* button, void* data) {
     aarGetSettings(confu);
 
     confu->server.host = serhost;
-    confu->server.port = (double) port;
+    confu->server.port = (int32_t) port;
     aarWriteSettings(confu);
 
     free(confu);
@@ -72,7 +74,7 @@ int aarMakeSettingsWindow(uiWindow* window) {
     uiForm* form;
     uiButton* saveButton;
     int status;
-    
+
     aarUserConfiguration* conf = malloc(sizeof(aarUserConfiguration));
     status = aarGetSettings(conf);
     if (status == aarError_FERROR) {
@@ -87,8 +89,8 @@ int aarMakeSettingsWindow(uiWindow* window) {
 
     saveButton = uiNewButton("Guardar");
     uiButtonOnClicked(saveButton, SaveButtonClicked, NULL);
-
-    if (strlen(conf->server.host) > 0)
+    aarPrettyLog("here1");
+    if (conf->server.host != "")
         uiEntrySetText(serverHost, conf->server.host);
     uiEntrySetText(serverPort, "0");
 

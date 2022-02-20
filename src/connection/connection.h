@@ -1,4 +1,6 @@
+#pragma once
 #include <libwebsockets.h>
+#include <uv.h>
 
 struct PERVHOSTDATA__MINIMAL {
     struct lws_context* ctx;
@@ -23,5 +25,20 @@ struct MESSAGE {
     size_t len;
 };
 
-void connSendMessage(struct PERVHOSTDATA__MINIMAL host, struct MESSAGE msg);
-void connFreeMessage(void* msg);
+void connSendHelloPayload(
+    struct PERVHOSTDATA__MINIMAL* host, 
+    aarUserConfiguration* lpuCfg
+);
+void connSendMessageCreatePayload(
+    struct PERVHOSTDATA__MINIMAL* host,
+    const char* content
+);
+void connSendMessage(
+    struct PERVHOSTDATA__MINIMAL host, 
+    struct MESSAGE msg
+);
+void connFreeMessage(
+    void* msg
+);
+uv_mutex_t* GetAsyncMutex();
+uv_async_t* GetAsyncHandle();

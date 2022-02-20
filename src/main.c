@@ -1,4 +1,5 @@
 ﻿#include <aarchitect.h>
+#include <aarchitect/chat.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -11,6 +12,10 @@ uiWindow* mainWindow;
 uiMenu* editMenuBar;
 // mbi - menu bar item
 uiMenuItem* mbiSettings;
+uiTab* gTab;
+uv_thread_t connectionThread;
+
+static void ConnectWrapper(uiButton* button, void* data);
 
 void aarSettingsWindowLauncher(uiMenuItem* sender, uiWindow* senderWindow, void* data);
 
@@ -37,7 +42,7 @@ static void SetupMenuBar() {
     editMenuBar = uiNewMenu("Editar");
     mbiSettings = uiMenuAppendItem(editMenuBar, "Definições");
     uiMenuItemOnClicked(mbiSettings, aarSettingsWindowLauncher, NULL);
-    uiMenuItemDisable(mbiSettings);
+    uiMenuItemEnable(mbiSettings);
 }
 
 static uiControl* MakeLoginPage() {
@@ -56,6 +61,7 @@ static uiControl* MakeLoginPage() {
         uiControl(uiNewEntry()), 0);
     
     button = uiNewButton("Iniciar Sessão");
+    uiButtonOnClicked(button, ConnectWrapper, NULL);
     uiBoxAppend(vbox, uiControl(button), 0);
 
     return uiControl(vbox);
@@ -69,6 +75,16 @@ int ShouldClose(uiWindow* window, void *data) {
 int ShouldQuit(void *data) {
     uiQuit();
     return 0;
+}
+
+static void ConnectWrapper(uiButton* button, void* data)
+{
+    aarPrettyLog("Establishing connection..");
+
+    aarUserConfiguration* cfg = malloc(sizeof(aarUserConfiguration));
+    aarGetSettings(cfg);
+    connectionThread = aarConnectClient(cfg);
+    aarAboutToConnectWindowSetup(gTab);
 }
 
 int main() {
@@ -85,7 +101,8 @@ int main() {
 #else
         const wchar_t* werr = EnwidenString(err);
         aarMessageBox(werr, L"Erro no arranque do aarchitect", aarMessageBoxSeverity_Error);
-        free(werr);
+        /* for some reason free() signature is wrong. */
+        free((wchar_t*) werr);
 #endif
         uiFreeInitError(err);
         return 1;
@@ -104,20 +121,16 @@ int main() {
     HICON hIcon = LoadIcon(lpModule, "IDI_ICON1");
     uiWindowsSetIcon(mainWindow, hIcon);
 #   endif
-
-    hbox = uiNewHorizontalBox();
-    uiBoxSetPadded(hbox, 1);
-    uiWindowSetChild(mainWindow, uiControl(hbox));
+    
+    gTab = uiNewTab();
+    uiTabAppend(gTab, "Início de sessão", MakeLoginPage());
+    uiTabSetMargined(gTab, 0, 1);
 
     vbox = uiNewVerticalBox();
     uiBoxSetPadded(vbox, 1);
+    uiBoxAppend(vbox, uiControl(gTab), 1);
     uiWindowSetChild(mainWindow, uiControl(vbox));
-
-    tab = uiNewTab();
-    uiWindowSetChild(mainWindow, uiControl(tab));
-    uiTabAppend(tab, "Início de sessão", MakeLoginPage());
-    uiTabSetMargined(tab, 0, 1);
-
+    
     uiControlShow(uiControl(mainWindow));
     uiMain();
     return 0;

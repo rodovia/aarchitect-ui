@@ -1,5 +1,6 @@
-#include "../include/aarchitect_cof.h"
+#include "../include/aarchitect.h"
 #include <windows.h>
+#include <winver.h>
 
 #ifdef BUILDING_DLL
 #   define APPTYPE VTF_DLL
@@ -9,24 +10,30 @@
 #   define APPTYPE VTF_UNKNOWN
 #endif
 
-1   VERSIONINFO
-    FILEVERSION     "0.1.0\0"
-    FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
-    FILEFLAGS (VS_FF_SPECIALBUILD|VS_FF_PRERELEASE)
-    FILEOS VOS__WINDOWS32
-    FILETYPE APPTYPE
-    FILESUBTYPE VFT2_UNKNOWN
+VS_VERSION_INFO VERSIONINFO
+  FILEVERSION       1,0,99,0
+  PRODUCTVERSION    1,0,99,0
+  FILEFLAGSMASK     VS_FFI_FILEFLAGSMASK
+  FILEFLAGS         0
+  FILEOS            VOS__WINDOWS32
+  FILETYPE          VFT_APP
+  FILESUBTYPE       VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "StringFileInfo"
+        BLOCK "040904E4"
         BEGIN
-            BLOCK "040904E4"
-            BEGIN
-                VALUE "CompanyName",      "Rodoviajw"
-                VALUE "FileDescription",  "aarchitect"
-                VALUE "FileVersion",      AARCHITECT_FILEVERSION
-                VALUE "LegalCopyright",   "n∆o tem"
-                VALUE "ProductName",      "aarchitect"
-                VALUE "ProductVersion",   AARCHITECT_PRODUCTVERSION
-            END
+            VALUE "CompanyName",      "Rodoviajw"
+            VALUE "FileDescription",  "aarchitect"
+            VALUE "FileVersion",      AARCHITECT_FILEVERSION
+            VALUE "LegalCopyright",   "Produto n√£o comercial"
+            VALUE "ProductName",      "aarchitect"
+            VALUE "ProductVersion",   "0.1.0\0"
+            VALUE "FileVersion",   "0.1.0\0"
         END
     END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0816, 1200
+    END
+END

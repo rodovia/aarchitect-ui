@@ -26,10 +26,74 @@ typedef struct cfToken {
     } type;
 } _CFTOKEN;
 
-CFAPI(_CFTOKEN*) cfTokenCreate(int iType, wchar_t* cInner);
+typedef struct cfSyntaxTree
+{  
+    enum
+    { 
+        PITEM_OBJECT = 0x1a1,
+        PITEM_KV,
+        PITEM_VALUE,
+        PITEM_STRING,
+        PITEM_COMPOUND
+    } type;
 
-CFAPI(_CFLEXER*) cfLexerCreate(const wchar_t* lpcContent);
-CFAPI(_CFTOKEN*) cfLexerGetNextToken(_CFLEXER* lpLexer);
+    union
+    {
+        struct 
+        {
+            wchar_t* key;
+            wchar_t* value;
+        } keyvalue;
+
+        struct 
+        {
+            wchar_t* objectName;
+            struct cfSyntraxTree** values;
+            size_t* sizeofValues;
+        } object;
+
+        wchar_t* valueString;
+        struct
+        {
+            struct cfSyntaxTree* compoundStruct;
+            size_t compoundSize;
+        } compound;
+    };
+} _CFABSSYNTAXTREE;
+
+typedef struct cfParser
+{
+    _CFLEXER* lexer;
+    _CFTOKEN* currentToken;
+} _CFPARSER;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+_CFPARSER* cfCreateParser(_CFLEXER* lexer);
+void cfParserEat(_CFPARSER* parser, int tokenType);
+_CFABSSYNTAXTREE* cfParserParse(_CFPARSER* parser);
+_CFABSSYNTAXTREE* cfParserParseObject(_CFPARSER* parser);
+_CFABSSYNTAXTREE* cfParserParseAssign(_CFPARSER* parser);
+
+#define X(a) CFAPI(a);
+
+MANYCFAPI(
+    _CFTOKEN* cfTokenCreate(
+        int iType, 
+        wchar_t* inner
+    ),
+    _CFLEXER* cfLexerCreate(
+        const wchar_t* lpcContent
+    ),
+    _CFTOKEN* cfLexerGetNextToken(
+        _CFLEXER* lpLexer
+    )
+);
+
+#undef X
+
 _CFTOKEN* cfLexerParseString(_CFLEXER* lpLexer);
 _CFTOKEN* cfLexerParseIdentifier(_CFLEXER* lpLexer);
 _CFTOKEN* cfLexerAdvanceWToken(_CFLEXER* lpLexer, _CFTOKEN* lpToken);
@@ -38,3 +102,7 @@ wchar_t cfLexerSeek(_CFLEXER*);
 wchar_t cfLexerSeek1(_CFLEXER* lpLexer, int offset, int type);
 void cfLexerSkipWhitespace(_CFLEXER* lpLexer);
 wchar_t* cfLexerCurrentCharAString(_CFLEXER* lpLexer);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif 

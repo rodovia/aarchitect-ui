@@ -13,6 +13,7 @@ add_library(tabcf ${TABULATEDCF_LIBTYPE}
     src/error.c
     src/file.c
     src/lexer.c
+    src/parser.c
 )
 
 target_link_libraries(tabcf PRIVATE Threads::Threads)

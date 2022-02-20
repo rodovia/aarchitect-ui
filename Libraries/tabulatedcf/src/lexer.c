@@ -5,7 +5,7 @@
 #include <wctype.h>
 #include <wchar.h>
 
-CFAPI(_CFLEXER*) cfLexerCreate(const wchar_t* lpcContent) {
+CFAPI(_CFLEXER* cfLexerCreate(const wchar_t* lpcContent)) {
     _CFLEXER* lpLexer = calloc(1, sizeof(_CFLEXER));
     lpLexer->rawContent = lpcContent;
     lpLexer->currentIndex = 0;
@@ -14,7 +14,7 @@ CFAPI(_CFLEXER*) cfLexerCreate(const wchar_t* lpcContent) {
     return lpLexer;
 }
 
-CFAPI(_CFTOKEN*) cfTokenCreate(int iType, wchar_t* cInner) {
+CFAPI(_CFTOKEN* cfTokenCreate(int iType, wchar_t* cInner)) {
     _CFTOKEN* token = calloc(1, sizeof(_CFTOKEN));
     token->type = iType;
     token->inner = cInner;
@@ -37,7 +37,7 @@ void cfLexerSkipWhitespace(_CFLEXER* lpLexer) {
     }
 }
 
-CFAPI(_CFTOKEN*) cfLexerGetNextToken(_CFLEXER* lpLexer) {
+CFAPI(_CFTOKEN* cfLexerGetNextToken(_CFLEXER* lpLexer)) {
     while (lpLexer->currentChar != '\0' && lpLexer->currentIndex < wcslen(lpLexer->rawContent)) {
         if (lpLexer->currentChar == L' ' || lpLexer->currentChar == L'\n') {
             cfLexerSkipWhitespace(lpLexer);

@@ -1,9 +1,16 @@
-[submodule "libraries/thirdparty/libyaml"]
-	path = libraries/thirdparty/libyaml
-	url = https://github.com/yaml/libyaml/
 [submodule "libraries/thirdparty/libwebsockets"]
 	path = libraries/thirdparty/libwebsockets
 	url = https://libwebsockets.org/repo/libwebsockets
-[submodule "libraries/thirdparty/libevent"]
-	path = libraries/thirdparty/libevent
-	url = https://github.com/libevent/libevent.git
+[submodule "libraries/thirdparty/cn-cbor"]
+	path = libraries/thirdparty/cn-cbor
+	url = https://github.com/jimsch/cn-cbor
+[submodule "libraries/thirdparty/libconfig"]
+	path = libraries/thirdparty/libconfig
+	url = https://github.com/hyperrealm/libconfig
+[submodule "libraries/thirdparty/libuv"]
+	path = libraries/thirdparty/libuv
+	url = https://github.com/libuv/libuv
+
+[submodule "libraries/thirdparty/squirrel"]
+	path = libraries/thirdparty/squirrel
+	url = https://github.com/albertodemichelis/squirrel.git
