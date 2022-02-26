@@ -14,3 +14,12 @@
 [submodule "libraries/thirdparty/squirrel"]
 	path = libraries/thirdparty/squirrel
 	url = https://github.com/albertodemichelis/squirrel.git
+[submodule "libraries/thirdparty/websocketpp"]
+	path = libraries/thirdparty/websocketpp
+	url = https://github.com/zaphoyd/websocketpp
+[submodule "libraries/thirdparty/gravity"]
+	path = libraries/thirdparty/gravity
+	url = https://github.com/marcobambini/gravity.git
+[submodule "libraries/thirdparty/argparse"]
+	path = libraries/thirdparty/argparse
+	url = https://github.com/cofyc/argparse.git

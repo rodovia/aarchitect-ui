@@ -21,7 +21,7 @@ struct PERVHOSTDATA__MINIMAL {
 };
 
 struct MESSAGE {
-    unsigned char* payload;
+    char* payload;
     size_t len;
 };
 
@@ -42,3 +42,4 @@ void connFreeMessage(
 );
 uv_mutex_t* GetAsyncMutex();
 uv_async_t* GetAsyncHandle();
+struct lws_context* GetWebsocketContext();

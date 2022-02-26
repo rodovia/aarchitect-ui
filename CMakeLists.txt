@@ -61,8 +61,8 @@ add_subdirectory("libraries/string")
 add_subdirectory(libraries/thirdparty/libuv)
 add_subdirectory(libraries/thirdparty/libconfig)
 add_subdirectory(libraries/thirdparty/libwebsockets)
-add_subdirectory(libraries/thirdparty/cn-cbor)
 add_subdirectory(libraries/thirdparty/log.c)
+add_subdirectory(libraries/thirdparty/mpack)
 
 # ====
 
@@ -70,9 +70,9 @@ set(aarchitect_SOURCES
     src/main.c 
     src/wSettings.c 
     src/settings.c 
-    src/connection/init.c
-    src/connection/sendreceive.c
-    src/connection/networking.c
+    src/connection/mgmt.c
+    src/connection/transport.c
+    src/connection/netabstr.c
     src/blank.cc
     src/ui/chat.c
 )
@@ -80,10 +80,16 @@ set(aarchitect_LIBS
     libui
     string
     websockets_shared
-    cn-cbor
     config
     logc
     uv
+    mpack
+)
+
+set(aarchitect_TARGETS
+    aarchitect
+    exthost
+    aarserver
 )
 
 if (WIN32)
@@ -104,6 +110,7 @@ endif()
 # == ALVOS DE COMPILAÇÃO ==
 if (AARCHTIECT_BUILD_SERVER)
     add_subdirectory(server)
+    add_subdirectory(exthost)
 endif()
 
 add_executable(aarchitect ${aarchitect_SOURCES})
@@ -119,6 +126,7 @@ if (AARCHITECT_BUILD_DOCS)
 
     doxygen_add_docs(docs   ${CMAKE_CURRENT_LIST_DIR}/src
                             "${CMAKE_CURRENT_LIST_DIR}/include/aarchitect"
+                            "${CMAKE_CURRENT_LIST_DIR}/include"
             ALL 
             WORKING_DIRECTORY "docs" 
             COMMENT "Building API documentation")
@@ -139,3 +147,8 @@ target_include_directories(aarchitect PUBLIC
                 libraries/thirdparty/cn-cbor/include
                 libraries/thirdparty/yaml/include
                 libraries/thirdparty/libconfig/lib)
+
+install(
+    TARGETS ${aarchitect_TARGETS} ${aarchitect_LIBS} RUNTIME DESTINATION "bin"
+)
+include(CPack)

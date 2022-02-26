@@ -34,6 +34,11 @@ static struct CONNECTIONSTATE
 static struct lws_context* ctx;
 static int interrupted, port = 443, ssl_conn = LCCSCF_USE_SSL;
 
+struct lws_context* GetWebsocketContext()
+{
+    return ctx;
+}
+
 uv_mutex_t* GetAsyncMutex()
 {
     return asyncMutex;
@@ -134,8 +139,8 @@ static int DefWebsocketProc(struct lws* wsi, enum lws_callback_reasons reason,
             
             goto _AttemptRetry;
             break;
-        case LWS_CALLBACK_CLIENT_RECEIVE:
-            lwsl_hexdump_notice(in, len);
+        case LWS_CALLBACK_RECEIVE:
+            
             break;
         case LWS_CALLBACK_CLIENT_ESTABLISHED:
             aarPrettyLog("Established connection");
@@ -172,7 +177,7 @@ static int DefWebsocketProc(struct lws* wsi, enum lws_callback_reasons reason,
             vhd->ctx = lws_get_context(wsi);
             vhd->protocol = lws_get_protocol(wsi);
             vhd->vhost = lws_get_vhost(wsi);
-            vhd->ring = lws_ring_create(sizeof(struct MESSAGE), 8, connFreeMessage);
+            vhd->ring = lws_ring_create(sizeof(struct MESSAGE), 8, NULL);
             ConnectClientServer(&vhd->sul);
             break;
         case LWS_CALLBACK_PROTOCOL_DESTROY:
@@ -183,7 +188,7 @@ static int DefWebsocketProc(struct lws* wsi, enum lws_callback_reasons reason,
         default:
             break;
     }
-
+    
     return lws_callback_http_dummy(wsi, reason, userdata, in, len);
 
 _AttemptRetry:
@@ -206,7 +211,7 @@ static const struct lws_protocols protocols[] = {
 int aarConnectClientBlocking(aarUserConfiguration* lpuCfg) {
     int n = 0;
     struct lws_context_creation_info info;
-    lws_set_log_level(LLL_USER | LLL_INFO | LLL_WARN | LLL_ERR, NULL);
+    lws_set_log_level(LLL_USER | LLL_INFO | LLL_WARN | LLL_ERR | LLL_NOTICE, NULL);
     memset(&info, 0, sizeof(info));
 
     info.connect_timeout_secs  = 20;
