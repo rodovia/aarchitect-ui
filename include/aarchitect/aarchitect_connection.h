@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef _AAR_API
+#   include "api.h"
+#endif
+
 /** 
  * @file aarchitect_connection.h
  * @brief Funnctions related to connection

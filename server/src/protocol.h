@@ -26,8 +26,16 @@ struct vhd_server
     int* options;
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int DefProtocolProc(struct lws *wsi, enum lws_callback_reasons reason,
                         void *user, void *in, size_t len);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #define LWS_PLUGIN_PROTOCOL_AARCHITECT_SERVER \
     {                           \

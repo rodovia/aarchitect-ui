@@ -2,7 +2,7 @@
 
 /* packet operation codes */
 
-/* Sent by client */
+/* Sent by client. Ranged from 0x1a00 (6656) to 0x1aff (6911) */
 #define HELLO_PACKET     0x1a00
 #define USER_UPDT_PACKET 0x1a01 /* User update packet */
 #define REFTCH_ALL_MEMB  0x1a02 /* Refetch all members */

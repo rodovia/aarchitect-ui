@@ -23,3 +23,9 @@
 [submodule "libraries/thirdparty/argparse"]
 	path = libraries/thirdparty/argparse
 	url = https://github.com/cofyc/argparse.git
+[submodule "libraries/thirdparty/fmt"]
+	path = libraries/thirdparty/fmt
+	url = https://github.com/fmtlib/fmt.git
+[submodule "libraries/thirdparty/wren"]
+	path = libraries/thirdparty/wren
+	url = https://github.com/wren-lang/wren.git

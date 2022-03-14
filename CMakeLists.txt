@@ -63,6 +63,7 @@ add_subdirectory(libraries/thirdparty/libconfig)
 add_subdirectory(libraries/thirdparty/libwebsockets)
 add_subdirectory(libraries/thirdparty/log.c)
 add_subdirectory(libraries/thirdparty/mpack)
+add_subdirectory(libraries/thirdparty/fmt)
 
 # ====
 
@@ -76,8 +77,7 @@ set(aarchitect_SOURCES
     src/blank.cc
     src/ui/chat.c
 )
-set(aarchitect_LIBS 
-    libui
+set(aarchitect_LIBS
     string
     websockets_shared
     config
@@ -109,8 +109,8 @@ endif()
 
 # == ALVOS DE COMPILAÇÃO ==
 if (AARCHTIECT_BUILD_SERVER)
-    add_subdirectory(server)
     add_subdirectory(exthost)
+    add_subdirectory(server)
 endif()
 
 add_executable(aarchitect ${aarchitect_SOURCES})
@@ -140,15 +140,10 @@ if (MSVC)
     target_compile_options(aarchitect PRIVATE /utf-8)
 endif()
 
-target_link_libraries(aarchitect PRIVATE ${aarchitect_LIBS})
+target_link_libraries(aarchitect PRIVATE ${aarchitect_LIBS} libui)
 target_include_directories(aarchitect PUBLIC 
                 ${LIBUI_PATH} 
                 include
                 libraries/thirdparty/cn-cbor/include
                 libraries/thirdparty/yaml/include
                 libraries/thirdparty/libconfig/lib)
-
-install(
-    TARGETS ${aarchitect_TARGETS} ${aarchitect_LIBS} RUNTIME DESTINATION "bin"
-)
-include(CPack)

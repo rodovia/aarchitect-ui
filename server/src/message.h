@@ -10,10 +10,18 @@ struct aaruserdata
     uint8_t* avatar;
 };
 
-void aarSendMessage(struct pss_data* wsi, uint8_t* bytes);
-void ParseBytes(struct pss_data* wsi, uint8_t *buffer, size_t len);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-struct pss_data* aarGetConnectedClients();
+void aarSendMessage(struct pss_data* wsi, const char* bytes);
+void ParseBytes(struct pss_data* wsi, const char *buffer, size_t len);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
+struct pss_data* aarGetConnectedClients(size_t* lpSize);
 struct aaruserdata* aarGetAllUsers();
 struct aaruserdata aarRemoveUser(struct pss_data user);
 struct aaruserdata aarGetConnectedUser(struct pss_data wsi);

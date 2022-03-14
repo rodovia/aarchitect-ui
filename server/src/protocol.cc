@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "protocol.h"
 #include "message.h"
+#include <exthost.h>
 
 struct MESSAGE 
 {
@@ -17,7 +18,7 @@ struct MESSAGE
 
 static void MinimalFreeMessage(void* _msg)
 {
-    struct MESSAGE* msg = _msg;
+    struct MESSAGE* msg = static_cast<struct MESSAGE*>(_msg);
     free(msg);
 }
 
@@ -39,17 +40,25 @@ int DefProtocolProc(struct lws *wsi, enum lws_callback_reasons reason,
     {
         case LWS_CALLBACK_PROTOCOL_INIT:
             
-            vhd = lws_protocol_vh_priv_zalloc(lws_get_vhost(wsi), 
+            vhd = static_cast<struct vhd_server*>(lws_protocol_vh_priv_zalloc(lws_get_vhost(wsi), 
                                             lws_get_protocol(wsi),
-                                            sizeof(struct vhd_server));
+                                            sizeof(struct vhd_server)));
             if (!vhd)
                 return -1;
 
             vhd->ctx = lws_get_context(wsi);
             vhd->vhost = lws_get_vhost(wsi);
 
-            vhd->interrupted = calloc(1, sizeof(int));
-            vhd->options = calloc(1, sizeof(int));
+            vhd->interrupted = static_cast<int*>(calloc(1, sizeof(int)));
+            vhd->options = static_cast<int*>(calloc(1, sizeof(int)));
+
+            lwsl_notice("loading test plugin...");
+            {
+                ext::CPlugin pl("main", "plugins/test/autorun/startup.js");
+                pl.Load();
+                pl.TriggerHook("Startup\0");
+            }
+
             break;
         case LWS_CALLBACK_ESTABLISHED:
             printf("OII\n");
@@ -72,7 +81,7 @@ int DefProtocolProc(struct lws *wsi, enum lws_callback_reasons reason,
                 psd->writeConsumePending = 0;
             }
 
-            pmsg = lws_ring_get_element(vhd->ring, NULL);
+            pmsg = static_cast<const struct MESSAGE*>(lws_ring_get_element(vhd->ring, NULL));
             if (!pmsg)
             {
                 lwsl_user("RING is null");
@@ -114,6 +123,8 @@ int DefProtocolProc(struct lws *wsi, enum lws_callback_reasons reason,
                           lws_frame_is_binary(wsi), psd->msgLen, (int)len,
                           (int)psd->msgLen + (int)len);
             
+            ParseBytes(psd, (const char*) in, len);
+
             msg.binary = (char) lws_frame_is_binary(wsi);
             msg.final = (char) lws_is_final_fragment(wsi);
             msg.first = (char) lws_is_first_fragment(wsi);
@@ -124,8 +135,6 @@ int DefProtocolProc(struct lws *wsi, enum lws_callback_reasons reason,
                 psd->msgLen = 0;
             else
                 psd->msgLen += (int32_t) len;
-
-            ParseBytes(psd, (uint8_t*) in, len);
 
             if (n < 3 && !psd->flowControlled)
             {

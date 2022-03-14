@@ -3,6 +3,7 @@
 #ifdef RC_INVOKED
 #include "aarchitect/aarchitect_cof.h"
 #else
+#include "aarchitect/api.h"
 #include "aarchitect/aarchitect_connection.h"
 
 #include <wtypes.h>
@@ -14,15 +15,6 @@
 
 #define AARCHITECT_SETTINGS_FILE "cfg.tbc"
 
-#ifdef _WIN32
-#   ifndef __i386__
-#       define AAR_CALLCONV __stdcall
-#   else
-#       define AAR_CALLCONV __fastcall
-#   endif
-#else
-#define AAR_CALLCONV
-#endif
 
 struct _USERCFG {
     struct {
@@ -56,6 +48,14 @@ void AAR_CALLCONV aarMessageBox(
     const wchar_t* caption, 
     int flags
 );
+
+/**
+ * @brief Parses configuration file *filename*
+ * 
+ * @param[in] filename the name of the file to open
+ * @param[in,out] configuration Writes the configuration struct to this premalloc'd pointer
+ * @return int 0 if the file was sucessfully parsed. >0 otherwise
+ */
 int AAR_CALLCONV aarGetSettingsEx(
     const char* filename, 
     aarUserConfiguration* configuration

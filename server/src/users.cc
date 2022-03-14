@@ -1,6 +1,7 @@
 #include <map>
 #include <vector>
 #include <cstdlib>
+#include <cstring>
 #include <bits/stl_tree.h>
 #include <utility>
 
@@ -56,7 +57,7 @@ struct aaruserdata* aarGetAllUsers()
     return nusecarr;
 }
 
-struct pss_data* aarGetConnectedClients()
+struct pss_data* aarGetConnectedClients(size_t* lpSize)
 {
     std::vector<struct pss_data> nuse;
     struct pss_data* nusecarr = (struct pss_data*) (
@@ -72,6 +73,8 @@ struct pss_data* aarGetConnectedClients()
     }
 
     std::copy(nuse.begin(), nuse.end(), nusecarr);
+    std::memset(lpSize, 0, sizeof(size_t));
+    (*lpSize) = nuse.size();
     return nusecarr;
 }
 
