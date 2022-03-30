@@ -56,7 +56,7 @@ FORCE_OPT(BUILD_EXAMPLES OFF BOOL)
 FORCE_OPT(BUILD_TESTS OFF BOOL)
 
 # ~~~~~~~
-
+include(exthost/caller/duktape.cmake)
 add_subdirectory("libraries/string")
 add_subdirectory(libraries/thirdparty/libuv)
 add_subdirectory(libraries/thirdparty/libconfig)
@@ -68,19 +68,21 @@ add_subdirectory(libraries/thirdparty/fmt)
 # ====
 
 set(aarchitect_SOURCES
-    src/main.c 
+    src/main.cc
     src/wSettings.c 
     src/settings.c 
     src/connection/mgmt.c
-    src/connection/transport.c
+    src/connection/transport.cc
     src/connection/netabstr.c
-    src/blank.cc
+    src/pluginhlp.cc
     src/ui/chat.c
 )
 set(aarchitect_LIBS
     string
     websockets_shared
+    duktape
     config
+    config++
     logc
     uv
     mpack

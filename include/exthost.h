@@ -4,6 +4,7 @@
 #include <string>
 #include <thread>
 #include <mutex>
+#include "apiutils.h"
 #include <condition_variable>
 
 namespace ext {
@@ -11,6 +12,7 @@ namespace ext {
 class CPlugin
 {
 public:
+    CPlugin(const CPlugin&) = default;
     explicit CPlugin(std::string sModuleName, std::string sEntryPoint);
     ~CPlugin()
     {
@@ -21,7 +23,18 @@ public:
 
     virtual void Load();
     virtual void TriggerHook(std::string sHookName);
+    
+    /**
+     * Like TriggerHook, but expects a param to be passed as argument to the hook func 
+     **/
+    virtual void TriggerHookEx(std::string sHookName, int32_t iNumArgs);
     virtual void Unload();
+    void SetGlobalVar(std::string sVarName, bool sValue);
+
+    duk_context* GetInnerContext()
+    {
+        return this->vm;
+    }
 private:
     void StartVM();
     void FeedVMFile(std::string sfName);
@@ -37,6 +50,8 @@ class CThreadedPlugin : public CPlugin
 public:
     using CPlugin::CPlugin;
 
+    CThreadedPlugin(const CThreadedPlugin&) = default;
+
     ~CThreadedPlugin()
     {
         CPlugin::Unload();
@@ -45,16 +60,14 @@ public:
     void Load() override;
     void Unload() override;
     void TriggerHook(std::string sHookName) override;
+
+    void SetModuleName(std::string sContent)
+    {
+        this->moduleName = sContent;
+    }
 private:
     mutable std::thread vmThread;
     std::mutex vmMutex;
 };
-}
-
-struct PLUGIN;
-
-struct PLUGIN* shLoadPlugin(const char* szName);
-struct PLUGIN* shGetPluginFromCache(const char* szName);
-
-int shTriggerHook(struct PLUGIN* lpPlugin, const char* szHookName, void* lpData);
+} /* namespace ext */
 

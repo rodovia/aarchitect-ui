@@ -18,4 +18,10 @@
 #   endif
 #endif
 
+#if defined(__GNUC__)
+#   define AAR_ALWAYSINLINE __attribute__ ((always_inline))
+#else
+#   define AAR_ALWAYSINLINE /* MSVC */
+#endif
+
 #endif /* ifndef _AAR_API */

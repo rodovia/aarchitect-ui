@@ -1,5 +1,6 @@
 #include <aarchitect.h>
 #include <aarchitect/messagepass.h>
+#include <apiutils.h>
 #include "connection.h"
 #include <string.h>
 
@@ -15,7 +16,9 @@ void aarSendChatMessage(const char* content)
     connSendMessageCreatePayload(vhd, content);
 }
 
+DEPRECATE(
 void aarSendMessageThr(int type)
+)
 {
     struct ASYNCMESSAGEINFO* mInfo = malloc(sizeof(struct ASYNCMESSAGEINFO));
     memset(mInfo, 0, sizeof(struct ASYNCMESSAGEINFO));

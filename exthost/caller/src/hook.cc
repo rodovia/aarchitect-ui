@@ -1,21 +1,17 @@
-#define DUK_USE_ASSERTIONS
 #include <duktape.h>
 #include <fmt/core.h>
 #include "langprocs.hxx"
 
 #include <cstdlib>
-#include <cstring>
 #include <string>
 #include <cstdio>
-#include <stdexcept>
 #include <mutex>
+#include <filesystem>
 #include <thread>
-#include <memory>
 #include <sstream>
 #include <fstream>
 
 #include <exthost.h>
-#include "langprocs.hxx"
 
 #define PLUGIN_TRIGGERHOOK_PROCNAME "EvntProc"
 
@@ -55,6 +51,13 @@ void ext::CPlugin::StartVM()
     RegAll(this->vm);
 }
 
+void ext::CPlugin::SetGlobalVar(std::string sVarName, bool sValue)
+{
+    duk_require_stack(this->vm, 2);
+    duk_push_boolean(this->vm, (int) sValue);
+    duk_put_global_lstring(this->vm, sVarName.c_str(), sVarName.size() + 1);
+}
+
 void ext::CPlugin::FeedVMFile(std::string sfName)
 {   
     int error;
@@ -84,6 +87,28 @@ void ext::CPlugin::TriggerHook(std::string sHookName)
     duk_pop(this->vm);
 }
 
+void ext::CPlugin::TriggerHookEx(std::string sHookName, int32_t iNumArgs)
+{
+    duk_require_stack(this->vm, 2);
+    duk_push_global_object(this->vm);
+    duk_get_prop_string(this->vm, -1, PLUGIN_TRIGGERHOOK_PROCNAME);
+    duk_insert(this->vm, -(iNumArgs) + -2); /* 
+                                            example:
+                                            stack: (before)
+                                                param
+                                                func
+                                                globalobject
+                                                ===
+                                            stack: (after)
+                                                func
+                                                param
+                                        
+                                            I hate and love stack-based APIs.
+                                            */
+    duk_pop(this->vm);
+    duk_call(this->vm, iNumArgs + 1);
+} 
+
 void ext::CPlugin::Unload()
 {
     if (!this->loaded)
@@ -109,51 +134,3 @@ void ext::CThreadedPlugin::Unload()
 {
     CPlugin::Unload();
 }
-
-/*
-struct PLUGIN
-{
-    std::thread vmThread;
-    WrenVM* vm;
-    const char* entryPath;
-    const char* moduleName;
-};
-
-void EventChecker0(struct PROCESS_* lpProc)
-{
-#ifdef _WIN32
-    shJoinProcess(lpProc);
-
-    DWORD exitCode;
-    std::printf("\n\n\nPROCESS QUIT =>> %i\n", shGetProcessExitCode(lpProc, &exitCode));
-#endif
-}
-
-namespace
-{
-
-
-
-void __StartVM(struct PLUGIN* this)
-{
-    WrenConfiguration config;    
-    wrenInitConfiguration(&config);
-    config.loadModuleFn = ResolveImports;
-    config.writeFn = &__Write;
-
-    this->vm = wrenNewVM(&config);
-    
-}
-
-}
-
-PLUGIN* shLoadPlugin(const char* szName)
-{
-    PLUGIN* pl = static_cast<PLUGIN*>(std::malloc(sizeof(PLUGIN)));
-    std::memset(pl, 0, sizeof(PLUGIN));
-    
-    
-
-    return pl;
-}
-*/

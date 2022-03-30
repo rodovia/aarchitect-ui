@@ -3,6 +3,7 @@
 #ifndef _AAR_API
 #   include "api.h"
 #endif
+#include "bits/aarbase.h"
 
 /** 
  * @file aarchitect_connection.h
@@ -13,8 +14,6 @@
  */
 
 #include <uv.h>
-
-typedef struct _USERCFG aarUserConfiguration;
 
 /**
  * @brief Creates a thread and connects to the server.

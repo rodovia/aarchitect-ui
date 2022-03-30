@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <signal.h>
+#include <dirent.h>
+#include <errno.h>
+
 #include "protocol.h"
 #include "config.h"
 
@@ -9,6 +12,8 @@ static struct lws_protocols protocols[] = {
 };
 
 static int interrupted = 0;
+
+const char* g_ConfigDir = NULL;
 
 static const struct lws_protocol_vhost_options pvo_ops = {
         NULL,
@@ -65,9 +70,33 @@ void lwsLog(int level, const char* line)
     SetConsoleTextAttribute(hCon, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE);
 }
 #endif
+
+const char* GetServerConfigDirectory()
+{
+    return g_ConfigDirectory;
+}
+
+void SetServerConfigDirectory(const char* szDir)
+{
+    DIR* dir = opendir(szDir);
+    if (dir)
+    {
+        g_ConfigDir = szDir;
+        closedir(dir);
+    } 
+    else if (errno == ENOENT)
+    {
+        lwsl_warn("Configuration directory '%s' does not exists. Ignoring", szDir);
+    }
+    else
+    {
+        lwsl_warn("Failed to open configuration directory '%s': errno = %s", szDir, errno);
+    }
+}
+
 int main(int argc, const char** argv) 
 {
-    fwprintf(stdout, L"Servidor de destino do aarchitect --> versão %s. \n"
+    fwprintf(stdout, L"Servidor de destino do aarchitect -- versão %s. \n"
         "Rodoviajw. Todos os direitos reservados.\n\n", AARSERVER_VERSION_STRING);
 
     const char* p;
@@ -87,6 +116,9 @@ int main(int argc, const char** argv)
 
     if ((p = lws_cmdline_option(argc, argv, "-host")))
         host = p;
+
+    if ((p = lws_cmdline_option(argc, argv, "-config")))
+        SetServerConfigDirectory(p);
 
     struct lws_context_creation_info info;
     struct lws_context *context;

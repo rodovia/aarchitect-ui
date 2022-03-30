@@ -3,8 +3,15 @@
 #include "protocol.h"
 #include "message.h"
 #include <exthost.h>
+#include "config.h"
 
-struct MESSAGE 
+#include <string>
+#include <filesystem>
+#include <vector>
+
+std::vector<ext::CThreadedPlugin> g_LoadedPlugins;
+
+struct MESSAGE
 {
     void* payload;
     size_t len;
@@ -13,8 +20,21 @@ struct MESSAGE
     char first;
 };
 
-/* This is created each time a client connect to us */
+static void LoadPlugin(std::string pluginName)
+{
+    std::filesystem::path cfgDir = GetServerConfigDirectory();
+    cfgDir
+        .append("plugins")
+        .append(pluginName.c_str())
+        .append("autorun")
+        .append("startup.js");
 
+    ext::CThreadedPlugin plugin(pluginName, cfgDir.string());
+    plugin.Load();
+    plugin.TriggerHook("Startup");
+
+    g_LoadedPlugins.push_back(std::move(plugin));
+}
 
 static void MinimalFreeMessage(void* _msg)
 {
@@ -52,12 +72,7 @@ int DefProtocolProc(struct lws *wsi, enum lws_callback_reasons reason,
             vhd->interrupted = static_cast<int*>(calloc(1, sizeof(int)));
             vhd->options = static_cast<int*>(calloc(1, sizeof(int)));
 
-            lwsl_notice("loading test plugin...");
-            {
-                ext::CPlugin pl("main", "plugins/test/autorun/startup.js");
-                pl.Load();
-                pl.TriggerHook("Startup\0");
-            }
+            LoadPlugin("test");
 
             break;
         case LWS_CALLBACK_ESTABLISHED:

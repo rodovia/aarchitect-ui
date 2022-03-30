@@ -4,17 +4,29 @@
 #include <mpack.h>
 #include <connection_opcodes.h>
 
-#define LWS_WITH_NETWORK
 #include <libwebsockets.h>
 #include "connection.h"
 
+void _ZeroMemoryPadded(char* ptr, ptrdiff_t dfStart, ptrdiff_t dfEnd)
+{
+    for (int i = dfStart; i < dfEnd - 1; i++)
+    {
+        ptr[i] = 0;
+    }
+}
+
 void connSendMessage(struct PERVHOSTDATA__MINIMAL host, struct MESSAGE msg)
 {
-    char* newCnt = (char*) malloc((sizeof(char) * msg.len) + LWS_PRE);
-    memset(newCnt, 0, (sizeof(char) * msg.len) + LWS_PRE);
-    newCnt[LWS_PRE - 1] = msg.payload;
+    char* newCnt = (char*) calloc(strlen(msg.payload) + LWS_PRE, sizeof(char));
+    (newCnt) = msg.payload;
+    _ZeroMemoryPadded(newCnt, strlen(msg.payload), strlen(newCnt));
 
     struct MESSAGE newMsg = { newCnt, msg.len + LWS_PRE };
+
+    for (ext::CThreadedPlugin& plugin : aarGetAllPlugins())
+    {
+        plugin.TriggerHook("RawMessageSend");
+    }
 
     lws_ring_insert(host.ring, &newMsg, 1);
     lws_callback_on_writable(host.client_wsi);
