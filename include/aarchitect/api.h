@@ -4,6 +4,8 @@
                     some random header from aarchitect folder is being included directly. */
 #define _AAR_API 1
 
+#include "../apiutils.h"
+
 #if defined(__i386__)
 #   if defined(_WIN32) && defined(_MSC_VER)
 #       define AAR_CALLCONV __fastcall

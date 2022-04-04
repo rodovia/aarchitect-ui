@@ -5,7 +5,7 @@ macro(FORCE_OPT _NAME VAL TYPE)
     set(${_NAME} ${VAL} CACHE ${TYPE} "" FORCE)
 endmacro()
 
-option(AARCHTIECT_BUILD_SERVER "Makes aarchitect also build the server" YES)
+option(AARCHITECT_BUILD_SERVER "Makes aarchitect also build the server" YES)
 option(AARCHITECT_BUILD_DOCS "Build documentation" NO)
 option(AARCHITECT_WITH_DEBUG_INFO "" NO)
 mark_as_advanced(AARCHITECT_WITH_DEBUG_INFO)
@@ -80,12 +80,14 @@ set(aarchitect_SOURCES
 set(aarchitect_LIBS
     string
     websockets_shared
-    duktape
+    extcaller
     config
     config++
     logc
+    duktape
     uv
     mpack
+    fmt
 )
 
 set(aarchitect_TARGETS
@@ -110,7 +112,7 @@ if (WIN32)
 endif()
 
 # == ALVOS DE COMPILAÇÃO ==
-if (AARCHTIECT_BUILD_SERVER)
+if (AARCHITECT_BUILD_SERVER)
     add_subdirectory(exthost)
     add_subdirectory(server)
 endif()

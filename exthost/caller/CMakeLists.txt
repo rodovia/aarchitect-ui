@@ -17,4 +17,5 @@ add_library(extcaller SHARED
 )
 
 target_include_directories(extcaller PUBLIC ../../include)
-target_link_libraries(extcaller synch fmt::fmt duktape)
+target_link_libraries(extcaller PRIVATE synch fmt::fmt)
+target_link_libraries(extcaller PUBLIC duktape)

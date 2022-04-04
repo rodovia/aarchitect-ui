@@ -1,6 +1,9 @@
 #pragma once
 #include <libwebsockets.h>
 #include <uv.h>
+#include <apiutils.h>
+
+CXX_EXTERNAL_START
 
 struct PERVHOSTDATA__MINIMAL {
     struct lws_context* ctx;
@@ -43,3 +46,5 @@ void connFreeMessage(
 uv_mutex_t* GetAsyncMutex();
 uv_async_t* GetAsyncHandle();
 struct lws_context* GetWebsocketContext();
+
+CXX_EXTERNAL_END

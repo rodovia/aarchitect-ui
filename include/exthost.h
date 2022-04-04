@@ -31,10 +31,27 @@ public:
     virtual void Unload();
     void SetGlobalVar(std::string sVarName, bool sValue);
 
-    duk_context* GetInnerContext()
+    inline duk_context* GetInnerContext()
     {
         return this->vm;
     }
+
+    inline std::string ModuleName()
+    {
+        return this->moduleName;
+    }
+
+    inline std::string EntryPoint()
+    {
+        return this->entryPoint;
+    }
+
+    inline bool Loaded()
+    {
+        return this->loaded;
+    }
+
+    CPlugin& operator=(const CPlugin&);
 private:
     void StartVM();
     void FeedVMFile(std::string sfName);
@@ -60,14 +77,14 @@ public:
     void Load() override;
     void Unload() override;
     void TriggerHook(std::string sHookName) override;
-
-    void SetModuleName(std::string sContent)
+    CThreadedPlugin& operator=(const CThreadedPlugin&);
+    bool operator==(const CThreadedPlugin& rhs)
     {
-        this->moduleName = sContent;
+        return this->vm == rhs.vm;
     }
 private:
-    mutable std::thread vmThread;
-    std::mutex vmMutex;
+    mutable std::thread* vmThread = nullptr;
+    std::mutex* vmMutex = nullptr;
 };
 } /* namespace ext */
 

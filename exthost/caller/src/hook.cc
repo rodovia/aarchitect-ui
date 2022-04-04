@@ -30,6 +30,24 @@ ext::CPlugin::CPlugin(std::string sModuleName, std::string sEntryPoint)
     this->entryPoint = sEntryPoint;
 }
 
+/*  I may need to assert that this overload is compliant with the
+    Copy-and-swap idiom... */
+
+ext::CPlugin& ext::CPlugin::operator=(const CPlugin& rhs)
+{
+    if (this->loaded)
+        this->Unload();
+    if (rhs.loaded)
+    {
+        this->vm = rhs.vm;
+    }
+    
+    this->entryPoint = rhs.entryPoint;
+    this->moduleName = rhs.moduleName;
+    this->loaded = rhs.loaded;
+    return *this;
+}
+
 void ext::CPlugin::Load()
 {
     if (this->loaded)
@@ -53,9 +71,13 @@ void ext::CPlugin::StartVM()
 
 void ext::CPlugin::SetGlobalVar(std::string sVarName, bool sValue)
 {
-    duk_require_stack(this->vm, 2);
+    duk_require_stack(this->vm, 3);
+    duk_push_global_object(this->vm);
+    duk_push_string(this->vm, sVarName.c_str());
     duk_push_boolean(this->vm, (int) sValue);
-    duk_put_global_lstring(this->vm, sVarName.c_str(), sVarName.size() + 1);
+    duk_put_prop(this->vm, -3);
+
+    duk_pop(this->vm); /* pop gl object */
 }
 
 void ext::CPlugin::FeedVMFile(std::string sfName)
@@ -113,6 +135,8 @@ void ext::CPlugin::Unload()
 {
     if (!this->loaded)
         return;
+
+    this->TriggerHook("Unload");
     this->loaded = false;
     duk_pop(this->vm);
     duk_destroy_heap(this->vm);
@@ -120,17 +144,41 @@ void ext::CPlugin::Unload()
 
 void ext::CThreadedPlugin::Load()
 {
-    std::thread vmThread(&CPlugin::Load, this);
-    std::swap(vmThread, this->vmThread);
+    if (this->loaded)
+        return;
+
+    this->vmThread = new std::thread(&CPlugin::Load, this);
+    this->vmMutex = new std::mutex();
+}
+
+ext::CThreadedPlugin& ext::CThreadedPlugin::operator=(const ext::CThreadedPlugin& rhs)
+{
+    if (this->loaded)
+        this->Unload();
+    if (rhs.loaded)
+    {
+        std::swap(this->vmThread, rhs.vmThread);
+        this->vm = rhs.vm;
+    }
+
+    this->entryPoint = rhs.entryPoint;
+    this->moduleName = rhs.moduleName;
+    this->loaded = rhs.loaded;
+    return *this;
 }
 
 void ext::CThreadedPlugin::TriggerHook(std::string sHookName)
 {
-    const std::lock_guard<std::mutex> mutex(this->vmMutex);
+    const std::lock_guard<std::mutex> mutex(*(this->vmMutex));
     CPlugin::TriggerHook(sHookName);
 }
 
 void ext::CThreadedPlugin::Unload()
 {
+    if (!this->loaded)
+        return;
+        
+    delete this->vmThread;
+    delete this->vmMutex;
     CPlugin::Unload();
 }

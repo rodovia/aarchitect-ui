@@ -23,6 +23,8 @@
  * 
  */
 
+#pragma once
+
 /*
  * This is the MPack 1.1 amalgamation package.
  *

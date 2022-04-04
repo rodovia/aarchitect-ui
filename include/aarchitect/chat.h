@@ -17,3 +17,4 @@ void AAR_CALLCONV aarMessageBox(
     const wchar_t* caption, 
     int flags
 );
+uiWindow* GetMainWindow();

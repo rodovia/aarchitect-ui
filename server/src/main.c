@@ -73,7 +73,7 @@ void lwsLog(int level, const char* line)
 
 const char* GetServerConfigDirectory()
 {
-    return g_ConfigDirectory;
+    return g_ConfigDir;
 }
 
 void SetServerConfigDirectory(const char* szDir)

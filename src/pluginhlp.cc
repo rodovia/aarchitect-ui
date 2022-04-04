@@ -1,69 +1,94 @@
 #include <exthost.h>
+#include <aarchitect.h>
 #include <aarchitect/pluginhlpapi.hxx>
 #include <libconfig.h++>
 #include <cassert>
+#include <fmt/core.h>
+#include <ui.h>
 
+#include <algorithm>
 #include <filesystem>
 #include <memory>
 #include <unordered_map>
 #include <string>
 #include <vector>
 
-std::unordered_map<std::string, ext::CThreadedPlugin> g_LoadedPlugins;
+std::vector<ext::CThreadedPlugin> g_LoadedPlugins;
 
-template<typename K, typename V>
-std::vector<V> RetrieveValues(std::unordered_map<K, V>& m)
-{
-    std::vector<V> values;
-    for (typename std::unordered_map<K, V>::iterator it = m.begin(); 
-        it != m.end(); ++it)
-    {
-        values.push_back(it->second);
-    }
-    return values;
-}
-
-ext::CThreadedPlugin& aarLoadPlugin(std::string szRootFolder)
+bool aarLoadPlugin(std::string szRootFolder, ext::CThreadedPlugin* lpPlugin)
 {
     std::filesystem::path cfgPath = szRootFolder;
-    std::filesystem::path plInfofp = cfgPath / "Plugininfo";
+    std::filesystem::path plInfofp = "_clientplugins" / cfgPath / "Plugininfo";
+
+    FILE* plInfofile = fopen(plInfofp.string().c_str(), "r");
 
     libconfig::Config cfg;
-    cfg.readFile(plInfofp.string());
+    try
+    {
+        cfg.read(plInfofile);
+    }
+    catch(const libconfig::ParseException& e)
+    {
+        uiMsgBoxError(GetMainWindow(), 
+            "Erro ao carregar uma extensão",
+            fmt::format("Ficheiro de configuração mal formado: {} @ {}:{}", 
+                e.getError(), e.getFile(), e.getLine()
+            ).c_str()
+        );
+        return false;
+    }
+
     std::string name = cfg.lookup("Name");
     std::string entryPoint = cfg.lookup("EntryPoint");
     std::filesystem::path entryPointPath = cfgPath / entryPoint;
 
-    ext::CThreadedPlugin* pl = new ext::CThreadedPlugin(name, entryPointPath.string());
-    pl->SetGlobalVar("CLIENT", true);
-    g_LoadedPlugins.emplace(name, pl);
+    ext::CThreadedPlugin pl(name, entryPointPath.string());
+    pl.SetGlobalVar("CLIENT", true);
+    pl.Load();
+    g_LoadedPlugins.push_back(pl);
 
-    return g_LoadedPlugins.at(name);
+    if (lpPlugin != nullptr)
+        (*lpPlugin) = pl;
+    
+    return true;
 }
 
-ext::CThreadedPlugin& aarGetPlugin(std::string szName)
+bool aarGetPlugin(std::string szName, ext::CThreadedPlugin* lpPlugin)
 {
-    return g_LoadedPlugins.at(szName);
+    auto itervalue = std::find_if(g_LoadedPlugins.begin(), g_LoadedPlugins.end(), 
+        [szName] (ext::CThreadedPlugin pl) {
+            return pl.ModuleName() == szName;
+        }
+    );
+
+    if (itervalue != g_LoadedPlugins.end())
+    {
+        *lpPlugin = *itervalue;
+        return true;
+    }
+    return false;
 }
 
 void aarUnloadPlugin(std::string szName)
 {
-    ext::CThreadedPlugin& pl = aarGetPlugin(szName);
-    pl.TriggerHook("Unload");
-    g_LoadedPlugins.erase(szName);
+    ext::CThreadedPlugin* pl = static_cast<ext::CThreadedPlugin*>(malloc(sizeof(ext::CThreadedPlugin)));
+    aarGetPlugin(szName, pl);
+
+    pl->Unload();
+    g_LoadedPlugins.erase(
+        std::remove(
+            g_LoadedPlugins.begin(), 
+            g_LoadedPlugins.end(), 
+            *pl), 
+        g_LoadedPlugins.end()
+    );
+    free(pl);
 }
 
 std::vector<ext::CThreadedPlugin>
 aarGetAllPlugins()
 {
-    std::vector<ext::CThreadedPlugin> values;
-    for (std::unordered_map<std::string, ext::CThreadedPlugin>::iterator it = g_LoadedPlugins.begin();
-        it != g_LoadedPlugins.end(); ++it)
-    {
-        values.push_back(it->second);
-    }
-
-    return values;
+    return g_LoadedPlugins;
 }
 
 void aarLoadAllPluginsEx(std::string lpFromFolder, int32_t iFlags)
@@ -77,6 +102,6 @@ void aarLoadAllPluginsEx(std::string lpFromFolder, int32_t iFlags)
             continue;
         }
 
-        aarLoadPlugin(fDirName);
+        aarLoadPlugin(fDirName, nullptr);
     }
 }

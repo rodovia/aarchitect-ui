@@ -42,7 +42,7 @@ void connSendHelloPayload(struct PERVHOSTDATA__MINIMAL* host,
 
     mpack_build_map(&writer);
     mpack_write_cstr(&writer, "type");
-        mpack_write_int(&writer, HELLO_PACKET);
+        mpack_write_i64(&writer, HELLO_PACKET);
 
     mpack_write_cstr(&writer, "username");
         mpack_write_cstr(&writer, lpuCfg->username);
@@ -68,7 +68,7 @@ void connSendMessageCreatePayload(struct PERVHOSTDATA__MINIMAL* host,
 
     mpack_build_map(&writer);
     mpack_write_cstr(&writer, "type");
-        mpack_write_int(&writer, EVENT_PACKET);
+        mpack_write_i64(&writer, EVENT_PACKET);
     
     mpack_write_cstr(&writer, "event");
         mpack_write_cstr(&writer, MESSAGE_CREATE);

@@ -2,6 +2,7 @@
 #include "api.h"
 #endif
 
+#include "bits/noc++incdirecwarn.hxx"
 #include "bits/aarbase.h"
 
 int AAR_CALLCONV aarGetSettingsEx(
@@ -27,3 +28,10 @@ int AAR_CALLCONV aarWriteSettingsEx(
     const char* filename, 
     aarUserConfiguration* inUserConf
 );
+
+void aarSettingsWindowLauncher(
+    uiMenuItem* sender, 
+    uiWindow* senderWindow, 
+    void* data
+);
+
