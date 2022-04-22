@@ -1,3 +1,7 @@
+#if defined(_MSC_VER) || defined(__clang__)
+#	define _ITERATOR_DEBUG_LEVEL 0
+#endif
+
 #include <libwebsockets.h>
 #include <stdio.h>
 #include "protocol.h"
@@ -19,22 +23,6 @@ struct MESSAGE
     char final;
     char first;
 };
-
-static void LoadPlugin(std::string pluginName)
-{
-    std::filesystem::path cfgDir = GetServerConfigDirectory();
-    cfgDir
-        .append("plugins")
-        .append(pluginName.c_str())
-        .append("autorun")
-        .append("startup.js");
-
-    ext::CThreadedPlugin plugin(pluginName, cfgDir.string());
-    plugin.Load();
-    plugin.TriggerHook("Startup");
-
-    g_LoadedPlugins.push_back(std::move(plugin));
-}
 
 static void MinimalFreeMessage(void* _msg)
 {
@@ -71,9 +59,6 @@ int DefProtocolProc(struct lws *wsi, enum lws_callback_reasons reason,
 
             vhd->interrupted = static_cast<int*>(calloc(1, sizeof(int)));
             vhd->options = static_cast<int*>(calloc(1, sizeof(int)));
-
-            LoadPlugin("test");
-
             break;
         case LWS_CALLBACK_ESTABLISHED:
             printf("OII\n");

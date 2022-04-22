@@ -1,5 +1,9 @@
-﻿cmake_minimum_required(VERSION 3.19)
+﻿cmake_policy(SET CMP0091 NEW) # MSVC runtime library flags are selected by an abstraction.
+
+cmake_minimum_required(VERSION 3.19)
 project(aarchitectUI)
+
+set(CMAKE_CXX_STANDARD 17)
 
 macro(FORCE_OPT _NAME VAL TYPE)
     set(${_NAME} ${VAL} CACHE ${TYPE} "" FORCE)
@@ -8,11 +12,11 @@ endmacro()
 option(AARCHITECT_BUILD_SERVER "Makes aarchitect also build the server" YES)
 option(AARCHITECT_BUILD_DOCS "Build documentation" NO)
 option(AARCHITECT_WITH_DEBUG_INFO "" NO)
-mark_as_advanced(AARCHITECT_WITH_DEBUG_INFO)
+option(AARCHITECT_WITH_ASAN "" NO)
 
-if (NOT DEFINED CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Debug")
-endif()
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+
+mark_as_advanced(AARCHITECT_WITH_DEBUG_INFO)
 
 # IMPORTANTE: A configuração precisa ser a primeira, senão o LWS irá compilar com as opções padrão.
 option(AARCHITECT_USE_LEAN_AND_MEAN_LWS "Avoid tests and static libraries to be built along with LWS" ON)
@@ -20,7 +24,8 @@ if (AARCHITECT_USE_LEAN_AND_MEAN_LWS)
     message("Using lean and mean libwebsockets...")
 
     FORCE_OPT(LWS_WITH_NETWORK YES BOOL)
-
+    FORCE_OPT(DISABLE_WERROR YES BOOL)
+    
     # Básico
     FORCE_OPT(LWS_WITH_MINIMAL_EXAMPLES NO BOOL)
     FORCE_OPT(LWS_WITH_LIBUV NO BOOL)
@@ -44,14 +49,8 @@ endif()
 set(CMAKE_C_STANDARD 11)
 
 set(BUILD_SHARED_LIBS ON)
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebugDLL")
 
-# ==> DEPENDÊNCIAS <===
-FORCE_OPT(CN_CBOR_BUILD_TESTS OFF BOOL)
-set(libUI_DIR libraries/thirdparty/libui)
-set(SEARCH_LIBUI_DYNAMIC ON)
-find_package(libUI)
-
+# ==> DEPENDÊNCIAS <==
 FORCE_OPT(BUILD_EXAMPLES OFF BOOL)
 FORCE_OPT(BUILD_TESTS OFF BOOL)
 
@@ -65,6 +64,9 @@ add_subdirectory(libraries/thirdparty/log.c)
 add_subdirectory(libraries/thirdparty/mpack)
 add_subdirectory(libraries/thirdparty/fmt)
 
+set(libUI_DIR libraries/thirdparty/libui)
+set(SEARCH_LIBUI_DYNAMIC ON)
+find_package(libUI)
 # ====
 
 set(aarchitect_SOURCES
@@ -88,6 +90,7 @@ set(aarchitect_LIBS
     uv
     mpack
     fmt
+    ${LIBUI_FILES}
 )
 
 set(aarchitect_TARGETS
@@ -98,8 +101,7 @@ set(aarchitect_TARGETS
 
 if (WIN32)
     list(APPEND aarchitect_SOURCES 
-        resource/icon.rc 
-        resource/metadata.rc
+        resource/icon.rc
     )
     if (NOT SEARCH_LIBUI_DYNAMIC)
         list(APPEND aarchitect_LIBS
@@ -118,12 +120,6 @@ if (AARCHITECT_BUILD_SERVER)
 endif()
 
 add_executable(aarchitect ${aarchitect_SOURCES})
-
-if(DEFINED CMAKE_BUILD_TYPE AND ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    if (GNU OR CMAKE_C_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
-        target_compile_options(aarchitect PRIVATE -ggdb -static-libgcc -static-libstdc++) # Add debug symbols
-    endif()
-endif()
 
 if (AARCHITECT_BUILD_DOCS)
     include(FindDoxygen)
@@ -144,7 +140,7 @@ if (MSVC)
     target_compile_options(aarchitect PRIVATE /utf-8)
 endif()
 
-target_link_libraries(aarchitect PRIVATE ${aarchitect_LIBS} libui)
+target_link_libraries(aarchitect PRIVATE ${aarchitect_LIBS})
 target_include_directories(aarchitect PUBLIC 
                 ${LIBUI_PATH} 
                 include

@@ -2,7 +2,6 @@
 #include <vector>
 #include <cstdlib>
 #include <cstring>
-#include <bits/stl_tree.h>
 #include <utility>
 
 #define LWS_WITH_NETWORK

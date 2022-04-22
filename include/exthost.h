@@ -2,14 +2,17 @@
 
 #include <duktape.h>
 #include <string>
+#include <map>
 #include <thread>
 #include <mutex>
 #include "apiutils.h"
 #include <condition_variable>
 
+#define PLLOAD_NO_ENTRYPOINT 0x100 /* load the VM without checking for valid entrypoint */
+
 namespace ext {
 
-class CPlugin
+class DLL_PUBLIC CPlugin
 {
 public:
     CPlugin(const CPlugin&) = default;
@@ -22,6 +25,10 @@ public:
     }
 
     virtual void Load();
+
+    virtual void LoadEx(int flags);
+    inline void DoFile();
+
     virtual void TriggerHook(std::string sHookName);
     
     /**
@@ -29,7 +36,10 @@ public:
      **/
     virtual void TriggerHookEx(std::string sHookName, int32_t iNumArgs);
     virtual void Unload();
+    void SetGlobalVarCache(std::string sVarName, bool sValue);
     void SetGlobalVar(std::string sVarName, bool sValue);
+
+    duk_bool_t AddGlobalProc(std::string sProcName, duk_c_function lpfnCallback, duk_idx_t isArgs);
 
     inline duk_context* GetInnerContext()
     {
@@ -50,9 +60,10 @@ public:
     {
         return this->loaded;
     }
-
     CPlugin& operator=(const CPlugin&);
 private:
+    std::map<std::string, bool> varCache;
+
     void StartVM();
     void FeedVMFile(std::string sfName);
 protected:
@@ -62,7 +73,7 @@ protected:
     duk_context* vm;
 };
 
-class CThreadedPlugin : public CPlugin
+class DLL_PUBLIC CThreadedPlugin : public CPlugin
 {
 public:
     using CPlugin::CPlugin;
@@ -75,16 +86,27 @@ public:
     }
 
     void Load() override;
+    void LoadEx(int32_t flags) override;
+    
     void Unload() override;
     void TriggerHook(std::string sHookName) override;
+
+    /**
+     * @brief Blocks until the plugin has loaded
+     */
+    void JoinLoad();
+
     CThreadedPlugin& operator=(const CThreadedPlugin&);
     bool operator==(const CThreadedPlugin& rhs)
     {
         return this->vm == rhs.vm;
     }
 private:
+    void StartupMask(int isFlags);
+    
     mutable std::thread* vmThread = nullptr;
     std::mutex* vmMutex = nullptr;
+    std::condition_variable* vmEvent;
 };
 } /* namespace ext */
 

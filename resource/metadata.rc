@@ -2,6 +2,8 @@
 #include <windows.h>
 #include <winver.h>
 
+#pragma codepage(1252)
+
 #ifdef BUILDING_DLL
 #   define APPTYPE VTF_DLL
 #elif BUILDING_EXE
@@ -11,13 +13,13 @@
 #endif
 
 VS_VERSION_INFO VERSIONINFO
-  FILEVERSION       1,0,99,0
-  PRODUCTVERSION    1,0,99,0
-  FILEFLAGSMASK     VS_FFI_FILEFLAGSMASK
-  FILEFLAGS         0
-  FILEOS            VOS__WINDOWS32
-  FILETYPE          VFT_APP
-  FILESUBTYPE       VFT2_UNKNOWN
+    FILEVERSION       1,0,99,0
+    PRODUCTVERSION    1,0,99,0
+    FILEFLAGSMASK     VS_FFI_FILEFLAGSMASK
+    FILEFLAGS         0
+    FILEOS            VOS__WINDOWS32
+    FILETYPE          VFT_APP
+    FILESUBTYPE       VFT2_UNKNOWN
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
@@ -26,7 +28,7 @@ BEGIN
             VALUE "CompanyName",      "Rodoviajw"
             VALUE "FileDescription",  "aarchitect"
             VALUE "FileVersion",      AARCHITECT_FILEVERSION
-            VALUE "LegalCopyright",   "Produto n√£o comercial"
+            VALUE "LegalCopyright",   "Produto n„o comercial"
             VALUE "ProductName",      "aarchitect"
             VALUE "ProductVersion",   "0.1.0\0"
             VALUE "FileVersion",   "0.1.0\0"

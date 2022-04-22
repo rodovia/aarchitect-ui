@@ -5,6 +5,7 @@
 #include <cassert>
 #include <fmt/core.h>
 #include <ui.h>
+#include "scripterrorcode.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -13,7 +14,60 @@
 #include <string>
 #include <vector>
 
+#ifdef _WIN32
+#   include <windows.h>
+#   define LOADLIBRARY LoadLibrary
+#   define GETPROCADDRESS GetProcAddress
+typedef HMODULE libloader_native_handle_type_t;
+#else
+#   include <dlfcn.h>
+#   define LOADLIBRARY dlopen
+#   define GETPROCADDRESS dlsym
+typedef void* libloader_native_handle_type_t;
+#endif
+
+typedef int (*LibloaderEntrypoint)(duk_context*);
+
 std::vector<ext::CThreadedPlugin> g_LoadedPlugins;
+const char* g_entryPointPath;
+
+static duk_ret_t __GetAssocFile(duk_context* vm)
+{
+    const char* fname = static_cast<const char*>(malloc(sizeof(char) * strlen(g_entryPointPath)));
+    duk_push_string(vm, fname);
+    free((void*) fname);
+    return 1;
+}
+
+static duk_ret_t __LoadLibrary(duk_context* vm)
+{
+    int llStatus;
+    LibloaderEntrypoint llEntry;
+    const char* libName = duk_require_string(vm, 0);
+    const char* moduleId = duk_require_string(vm, 1);
+
+    libloader_native_handle_type_t nModule = LOADLIBRARY(libName);
+    if (nModule == NULL)
+    {
+        duk_push_int(vm, LOADLIBRARY_NO_MODULE_LOADED);
+        return 1;
+    }
+    llEntry = (LibloaderEntrypoint) GETPROCADDRESS(nModule, "PluginMain");
+    if (llEntry == NULL)
+    {
+        duk_push_int(vm, LOADLIBRARY_NO_ENTRY_POINT);
+        return 1;
+    }
+    llStatus = llEntry(vm);
+    if (llStatus == 0)
+    {
+        duk_push_int(vm, LOADLIBRARY_NO_COOPERATE);
+    }
+
+    assert(duk_is_object(vm, -1));
+
+    return 1;
+}
 
 bool aarLoadPlugin(std::string szRootFolder, ext::CThreadedPlugin* lpPlugin)
 {
@@ -42,9 +96,14 @@ bool aarLoadPlugin(std::string szRootFolder, ext::CThreadedPlugin* lpPlugin)
     std::string entryPoint = cfg.lookup("EntryPoint");
     std::filesystem::path entryPointPath = cfgPath / entryPoint;
 
-    ext::CThreadedPlugin pl(name, entryPointPath.string());
-    pl.SetGlobalVar("CLIENT", true);
-    pl.Load();
+    ext::CThreadedPlugin pl(name, "_clientplugins/std/modules/cjs_loader.js");
+    pl.LoadEx(PLLOAD_NO_ENTRYPOINT);
+    pl.SetGlobalVarCache("CLIENT", true);
+    pl.AddGlobalProc("__GetAssocFile", __GetAssocFile, 0);
+    pl.AddGlobalProc("__LoadLibrary", __LoadLibrary, 2);
+
+    pl.DoFile();
+
     g_LoadedPlugins.push_back(pl);
 
     if (lpPlugin != nullptr)

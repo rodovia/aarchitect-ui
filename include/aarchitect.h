@@ -4,6 +4,10 @@
 #include "aarchitect/aarchitect_cof.h"
 #else
 
+#if defined(_MSC_VER) || (defined(__clang__) && defined(_WIN32))
+#   define _CRT_SECURE_NO_WARNINGS /* Microsoft best company */
+#endif
+
 #ifndef _AARCHITECT_H
 #define _AARCHITECT_H 1 /* noc++incdirecwarn requires this macro. */
 

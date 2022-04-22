@@ -1,4 +1,5 @@
-﻿#include <aarchitect.h>
+﻿#define _ITERATOR_DEBUG_LEVEL 0
+#include <aarchitect.h>
 #include <aarchitect/chat.h>
 #include <aarchitect/pluginhlpapi.hxx>
 #include <string.h>

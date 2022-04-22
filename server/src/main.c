@@ -1,7 +1,13 @@
 #include <stdio.h>
 #include <signal.h>
-#include <dirent.h>
 #include <errno.h>
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#   include <windows.h>
+#else
+#   include <dirent.h>
+#endif
 
 #include "protocol.h"
 #include "config.h"
@@ -78,6 +84,20 @@ const char* GetServerConfigDirectory()
 
 void SetServerConfigDirectory(const char* szDir)
 {
+#ifdef _WIN32
+    LPWIN32_FIND_DATAA fData;
+    HANDLE hSearch = FindFirstFileA(szDir, fData);
+
+    if (!(fData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+    {
+        lwsl_warn("Configuration 'directory' is not a dir. Ignoring");
+        return;
+    }
+
+    g_ConfigDir = szDir;
+    FindClose(hSearch);
+
+#else /* !defined(_WIN32) */
     DIR* dir = opendir(szDir);
     if (dir)
     {
@@ -92,6 +112,7 @@ void SetServerConfigDirectory(const char* szDir)
     {
         lwsl_warn("Failed to open configuration directory '%s': errno = %s", szDir, errno);
     }
+#endif
 }
 
 int main(int argc, const char** argv) 
@@ -144,7 +165,7 @@ int main(int argc, const char** argv)
         if (lws_service(context, 0))
             interrupted = 1;
     }
-
+    
     lws_context_destroy(context);
     return 0;
 }

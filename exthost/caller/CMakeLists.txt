@@ -16,6 +16,8 @@ add_library(extcaller SHARED
     ${extcaller_SOURCES}
 )
 
+target_compile_definitions(extcaller PRIVATE BUILDING_DLL=1 PUBLIC IMPORTING_DLL=1)
+
 target_include_directories(extcaller PUBLIC ../../include)
-target_link_libraries(extcaller PRIVATE synch fmt::fmt)
+target_link_libraries(extcaller PRIVATE fmt::fmt)
 target_link_libraries(extcaller PUBLIC duktape)
