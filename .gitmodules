@@ -1,31 +1,12 @@
 [submodule "libraries/thirdparty/libwebsockets"]
 	path = libraries/thirdparty/libwebsockets
 	url = https://libwebsockets.org/repo/libwebsockets
-[submodule "libraries/thirdparty/cn-cbor"]
-	path = libraries/thirdparty/cn-cbor
-	url = https://github.com/jimsch/cn-cbor
 [submodule "libraries/thirdparty/libconfig"]
 	path = libraries/thirdparty/libconfig
 	url = https://github.com/hyperrealm/libconfig
 [submodule "libraries/thirdparty/libuv"]
 	path = libraries/thirdparty/libuv
 	url = https://github.com/libuv/libuv
-
-[submodule "libraries/thirdparty/squirrel"]
-	path = libraries/thirdparty/squirrel
-	url = https://github.com/albertodemichelis/squirrel.git
-[submodule "libraries/thirdparty/websocketpp"]
-	path = libraries/thirdparty/websocketpp
-	url = https://github.com/zaphoyd/websocketpp
-[submodule "libraries/thirdparty/gravity"]
-	path = libraries/thirdparty/gravity
-	url = https://github.com/marcobambini/gravity.git
-[submodule "libraries/thirdparty/argparse"]
-	path = libraries/thirdparty/argparse
-	url = https://github.com/cofyc/argparse.git
 [submodule "libraries/thirdparty/fmt"]
 	path = libraries/thirdparty/fmt
-	url = https://github.com/fmtlib/fmt.git
-[submodule "libraries/thirdparty/wren"]
-	path = libraries/thirdparty/wren
-	url = https://github.com/wren-lang/wren.git
+	url = https://github.com/fmtlib/fmt
