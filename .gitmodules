@@ -1,12 +1,12 @@
 [submodule "libraries/thirdparty/libwebsockets"]
 	path = libraries/thirdparty/libwebsockets
-	url = https://libwebsockets.org/repo/libwebsockets
+	url = git://libwebsockets.org/repo/libwebsockets
 [submodule "libraries/thirdparty/libconfig"]
 	path = libraries/thirdparty/libconfig
-	url = https://github.com/hyperrealm/libconfig
+	url = git://github.com/hyperrealm/libconfig
 [submodule "libraries/thirdparty/libuv"]
 	path = libraries/thirdparty/libuv
-	url = https://github.com/libuv/libuv
+	url = git://github.com/libuv/libuv
 [submodule "libraries/thirdparty/fmt"]
 	path = libraries/thirdparty/fmt
-	url = https://github.com/fmtlib/fmt
+	url = git://github.com/fmtlib/fmt
